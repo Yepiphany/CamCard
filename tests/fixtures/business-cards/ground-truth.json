@@ -1,0 +1,761 @@
+{
+  "samples": [
+    {
+      "id": "CC-001",
+      "image": "images/CC-001.png",
+      "scenario": "正拍、哑光白卡、深色背景、字段齐全",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Mara Quill",
+        "Northglass Studio",
+        "Design Director",
+        "Mobile +1 202-555-0101",
+        "Office +1 202-555-0102",
+        "mara@example.com",
+        "northglass.example",
+        "10 Example Lane"
+      ],
+      "fields": {
+        "name": "Mara Quill",
+        "company": "Northglass Studio",
+        "jobTitle": "Design Director",
+        "mobile": [
+          "+1 202-555-0101"
+        ],
+        "officePhone": [
+          "+1 202-555-0102"
+        ],
+        "email": [
+          "mara@example.com"
+        ],
+        "website": "northglass.example",
+        "address": "10 Example Lane"
+      }
+    },
+    {
+      "id": "CC-002",
+      "image": "images/CC-002.png",
+      "scenario": "正拍、亚麻纹卡纸、浅色背景、简体中文",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "林小舟",
+        "青屿设计",
+        "设计师",
+        "zhou@example.com"
+      ],
+      "fields": {
+        "name": "林小舟",
+        "company": "青屿设计",
+        "jobTitle": "设计师",
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "zhou@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-003",
+      "image": "images/CC-003.png",
+      "scenario": "斜拍、银色金属质感、侧光",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Ada Venn",
+        "Venn Fabrication",
+        "Engineer",
+        "ada@example.com"
+      ],
+      "fields": {
+        "name": "Ada Venn",
+        "company": "Venn Fabrication",
+        "jobTitle": "Engineer",
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "ada@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-004",
+      "image": "images/CC-004.png",
+      "scenario": "竖版、轻微旋转、磨砂底面、中英双语",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "陈可",
+        "Ke Chen",
+        "云栈工坊 Cloud Loom",
+        "工程师 Engineer",
+        "ke@example.com"
+      ],
+      "fields": {
+        "name": "陈可",
+        "company": "云栈工坊 Cloud Loom",
+        "jobTitle": "工程师 Engineer",
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "ke@example.com"
+        ],
+        "website": null,
+        "address": null,
+        "nameAliases": [
+          "Ke Chen"
+        ]
+      }
+    },
+    {
+      "id": "CC-005",
+      "image": "images/CC-005.png",
+      "scenario": "牛皮纸、斜拍、投影、衬线字体",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Lena Pike",
+        "Amber Fold",
+        "Research Lead",
+        "lena@example.com"
+      ],
+      "fields": {
+        "name": "Lena Pike",
+        "company": "Amber Fold",
+        "jobTitle": "Research Lead",
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "lena@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-006",
+      "image": "images/CC-006.png",
+      "scenario": "覆膜反光、手机和办公电话及传真",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Noah Rill",
+        "Rill Labs",
+        "Office +1 202-555-0103",
+        "Mobile +1 202-555-0104",
+        "Fax +1 202-555-0105"
+      ],
+      "fields": {
+        "name": "Noah Rill",
+        "company": "Rill Labs",
+        "jobTitle": null,
+        "mobile": [
+          "+1 202-555-0104"
+        ],
+        "officePhone": [
+          "+1 202-555-0103"
+        ],
+        "email": [],
+        "website": null,
+        "address": null,
+        "fax": [
+          "+1 202-555-0105"
+        ]
+      }
+    },
+    {
+      "id": "CC-007",
+      "image": "images/CC-007.png",
+      "scenario": "竖版、棉纸纹理、小字号、双邮箱",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Iris Wren",
+        "Mica Press",
+        "iris@example.com",
+        "studio@example.com"
+      ],
+      "fields": {
+        "name": "Iris Wren",
+        "company": "Mica Press",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "iris@example.com",
+          "studio@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-008",
+      "image": "images/CC-008.png",
+      "scenario": "深色卡纸、低光、简体中文、缺失联系方式",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "赵一川",
+        "墨杉工作室",
+        "顾问"
+      ],
+      "fields": {
+        "name": "赵一川",
+        "company": "墨杉工作室",
+        "jobTitle": "顾问",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-009",
+      "image": "images/CC-009.png",
+      "scenario": "斜放、姓名与公司易混淆",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Jordan Lee",
+        "Lee Consulting",
+        "Consultant"
+      ],
+      "fields": {
+        "name": "Jordan Lee",
+        "company": "Lee Consulting",
+        "jobTitle": "Consultant",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-010",
+      "image": "images/CC-010.png",
+      "scenario": "标志、产品词与公司字段歧义",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Avery Vale",
+        "Product: Apple",
+        "Company: Plover Works"
+      ],
+      "fields": {
+        "name": "Avery Vale",
+        "company": "Plover Works",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-011",
+      "image": "images/CC-011.png",
+      "scenario": "斜拍、中英混排",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "陈星",
+        "Field Engineer",
+        "松岚工作室",
+        "xing@example.com"
+      ],
+      "fields": {
+        "name": "陈星",
+        "company": "松岚工作室",
+        "jobTitle": "Field Engineer",
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "xing@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-012",
+      "image": "images/CC-012.png",
+      "scenario": "轻度运动模糊、压印纹理、旋转",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Milo Finch",
+        "Ochre Circle",
+        "Illustrator"
+      ],
+      "fields": {
+        "name": "Milo Finch",
+        "company": "Ochre Circle",
+        "jobTitle": "Illustrator",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-013",
+      "image": "images/CC-013.png",
+      "scenario": "逆光、轻度失焦、浅色桌面",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Nina Ash",
+        "Cedar Pixel",
+        "Photographer"
+      ],
+      "fields": {
+        "name": "Nina Ash",
+        "company": "Cedar Pixel",
+        "jobTitle": "Photographer",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-014",
+      "image": "images/CC-014.png",
+      "scenario": "反光桌面、斜拍、浅景深",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Eli Moss",
+        "Glass Kite",
+        "eli@example.com"
+      ],
+      "fields": {
+        "name": "Eli Moss",
+        "company": "Glass Kite",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "eli@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-015",
+      "image": "images/CC-015.png",
+      "scenario": "深色卡纸、局部阴影、简体中文",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "贺青",
+        "桥影工房",
+        "编辑"
+      ],
+      "fields": {
+        "name": "贺青",
+        "company": "桥影工房",
+        "jobTitle": "编辑",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-016",
+      "image": "images/CC-016.png",
+      "scenario": "拉丝铜质、强透视、雕刻文字",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Ren Sol",
+        "Paper Meridian",
+        "Planner"
+      ],
+      "fields": {
+        "name": "Ren Sol",
+        "company": "Paper Meridian",
+        "jobTitle": "Planner",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-017",
+      "image": "images/CC-017.png",
+      "scenario": "夹子遮挡卡角、正文完整",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Dara Glen",
+        "Glen Logic",
+        "dara@example.com"
+      ],
+      "fields": {
+        "name": "Dara Glen",
+        "company": "Glen Logic",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "dara@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-018",
+      "image": "images/CC-018.png",
+      "scenario": "复杂桌面、量尺干扰、边缘完整",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Tess Vale",
+        "Juniper Metric",
+        "Analyst"
+      ],
+      "fields": {
+        "name": "Tess Vale",
+        "company": "Juniper Metric",
+        "jobTitle": "Analyst",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-019",
+      "image": "images/CC-019.png",
+      "scenario": "竖版、几何标志、深色卡纸",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Oren Flint",
+        "Sable Type",
+        "Art Director"
+      ],
+      "fields": {
+        "name": "Oren Flint",
+        "company": "Sable Type",
+        "jobTitle": "Art Director",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-020",
+      "image": "images/CC-020.png",
+      "scenario": "竖版、粗纹手工纸、小字号",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "方可",
+        "白舟造物",
+        "fang@example.com"
+      ],
+      "fields": {
+        "name": "方可",
+        "company": "白舟造物",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "fang@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-021",
+      "image": "images/CC-021.png",
+      "scenario": "倒置 180°、含网站",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Ada Reed",
+        "Fable Foundry",
+        "Editor",
+        "fable.example"
+      ],
+      "fields": {
+        "name": "Ada Reed",
+        "company": "Fable Foundry",
+        "jobTitle": "Editor",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": "fable.example",
+        "address": null
+      }
+    },
+    {
+      "id": "CC-022",
+      "image": "images/CC-022.png",
+      "scenario": "旋转 90°、亮面塑料",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Leo Fern",
+        "Fern Signal",
+        "leo@example.com"
+      ],
+      "fields": {
+        "name": "Leo Fern",
+        "company": "Fern Signal",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "leo@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-023",
+      "image": "images/CC-023.png",
+      "scenario": "珠光纸、暗光、轻度模糊",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Mira Lake",
+        "Blue Hour Studio",
+        "mira@example.com"
+      ],
+      "fields": {
+        "name": "Mira Lake",
+        "company": "Blue Hour Studio",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "mira@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-024",
+      "image": "images/CC-024.png",
+      "scenario": "严重失焦、亮面深色卡",
+      "hasCard": true,
+      "scoreFields": false,
+      "referenceText": [
+        "Rae Frost",
+        "Frost Field",
+        "Writer"
+      ],
+      "fields": {
+        "name": "Rae Frost",
+        "company": "Frost Field",
+        "jobTitle": "Writer",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-025",
+      "image": "images/CC-025.png",
+      "scenario": "中英双语、斜拍、大图形",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "余舟",
+        "Yu Zhou",
+        "霜桥 Frost Bridge",
+        "yu@example.com"
+      ],
+      "fields": {
+        "name": "余舟",
+        "company": "霜桥 Frost Bridge",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "yu@example.com"
+        ],
+        "website": null,
+        "address": null,
+        "nameAliases": [
+          "Yu Zhou"
+        ]
+      }
+    },
+    {
+      "id": "CC-026",
+      "image": "images/CC-026.png",
+      "scenario": "双号码无标签、网站缺失",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Devon Elm",
+        "Tern Audio",
+        "+1 202-555-0106",
+        "+1 202-555-0107"
+      ],
+      "fields": {
+        "name": "Devon Elm",
+        "company": "Tern Audio",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null,
+        "unclassifiedPhones": [
+          "+1 202-555-0106",
+          "+1 202-555-0107"
+        ]
+      }
+    },
+    {
+      "id": "CC-027",
+      "image": "images/CC-027.png",
+      "scenario": "双栏、密排、双电话及双邮箱",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Sara Holt",
+        "Holt Robotics",
+        "Mobile +1 202-555-0108",
+        "Office +1 202-555-0109",
+        "sara@example.com",
+        "lab@example.com"
+      ],
+      "fields": {
+        "name": "Sara Holt",
+        "company": "Holt Robotics",
+        "jobTitle": null,
+        "mobile": [
+          "+1 202-555-0108"
+        ],
+        "officePhone": [
+          "+1 202-555-0109"
+        ],
+        "email": [
+          "sara@example.com",
+          "lab@example.com"
+        ],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-028",
+      "image": "images/CC-028.png",
+      "scenario": "只有公司、其余字段缺失",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "Moss Atelier"
+      ],
+      "fields": {
+        "name": null,
+        "company": "Moss Atelier",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-029",
+      "image": "images/CC-029.png",
+      "scenario": "透明塑料、画面裁边、中英双语",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "温宁",
+        "Wen Ning",
+        "信标工作室 Beacon Studio",
+        "wen@example.com"
+      ],
+      "fields": {
+        "name": "温宁",
+        "company": "信标工作室 Beacon Studio",
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [
+          "wen@example.com"
+        ],
+        "website": null,
+        "address": null,
+        "nameAliases": [
+          "Wen Ning"
+        ]
+      }
+    },
+    {
+      "id": "CC-030",
+      "image": "images/CC-030.png",
+      "scenario": "无名片负例、木桌和笔",
+      "hasCard": false,
+      "scoreFields": false,
+      "referenceText": [],
+      "fields": {
+        "name": null,
+        "company": null,
+        "jobTitle": null,
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    },
+    {
+      "id": "CC-031",
+      "image": "images/CC-031.png",
+      "scenario": "轻微旋转、浅背景、繁体中文",
+      "hasCard": true,
+      "scoreFields": true,
+      "referenceText": [
+        "鄭小雨",
+        "雲杉設計",
+        "設計顧問"
+      ],
+      "fields": {
+        "name": "鄭小雨",
+        "company": "雲杉設計",
+        "jobTitle": "設計顧問",
+        "mobile": [],
+        "officePhone": [],
+        "email": [],
+        "website": null,
+        "address": null
+      }
+    }
+  ]
+}
