@@ -10,7 +10,9 @@
 
 - [需求范围](docs/requirements.md)
 - [黑盒规格](docs/spec.md)
-- [阶段任务](docs/tasks.md)
+- [用户故事](docs/user-stories.md) · [验收标准](docs/acceptance-criteria.md)
+- [架构](docs/architecture.md) · [数据模型](docs/database.md) · [内部接口](docs/api.md) · [界面规格](docs/ui-spec.md)
+- [阶段计划](docs/plan.md) · [任务清单](docs/tasks.md) · [项目决策](docs/decisions.md)
 - [协作约定](AGENTS.md)
 
 ## 开发环境

@@ -16,5 +16,5 @@
 - [x] 记录原版导入、校正入口、保存与详情的主要观察。
 - [x] 建立[项目合成名片测试集](../tests/fixtures/business-cards/README.md)，记录固定样本及字段标准答案。
 - [ ] 核实模拟器运行时并记录模拟设备型号。
-- [ ] 完成用户故事、可执行验收标准、架构、数据模型、接口和 UI 规格。
+- [x] 完成[用户故事](user-stories.md)、[验收标准](acceptance-criteria.md)、[架构](architecture.md)、[数据模型](database.md)、[接口](api.md)和 [UI 规格](ui-spec.md)。
 - [ ] 补充原版搜索、分组、导出等待观察场景。
