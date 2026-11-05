@@ -17,4 +17,5 @@
 - [x] 建立[项目合成名片测试集](../tests/fixtures/business-cards/README.md)，记录固定样本及字段标准答案。
 - [ ] 核实模拟器运行时并记录模拟设备型号。
 - [x] 完成[用户故事](user-stories.md)、[验收标准](acceptance-criteria.md)、[架构](architecture.md)、[数据模型](database.md)、[接口](api.md)和 [UI 规格](ui-spec.md)。
-- [ ] 补充原版搜索、分组、导出等待观察场景。
+- [x] 补充原版公司名搜索、空结果、分组保存与筛选、普通备注观察。
+- [x] 验证原版通讯录导出成功及字段映射。其他待观察路径见[黑盒规格](spec.md)。
