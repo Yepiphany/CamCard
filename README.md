@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-扫描页支持勾选照片后确认导入、裁剪、OCR、字段校对和保存。默认使用空的内存存储，使用 `--demo-cards` 启动时显示一张合成名片。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
+扫描页支持勾选照片后确认导入、裁剪、OCR、字段校对和保存。默认将名片、原图、校正图、分组及备注保存到应用沙盒。使用 `--demo-cards` 启动时显示一张内存中的合成名片。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
 
 - [需求范围](docs/requirements.md)
 - [黑盒规格](docs/spec.md)
@@ -28,6 +28,7 @@ xcodebuild -project CamCard.xcodeproj -scheme CamCard \
 xcrun simctl addmedia booted tests/fixtures/business-cards/images/CC-001.png
 # 已安装 CamCard 时，在专用模拟器中预先授予相册权限。
 xcrun simctl privacy booted grant photos com.yepiphany.camcard
+xcrun simctl privacy booted grant contacts com.yepiphany.camcard
 
 xcodebuild -project CamCard.xcodeproj -scheme CamCard \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
@@ -50,3 +51,5 @@ xcrun --sdk iphonesimulator swiftc \
 xcrun simctl spawn booted "$score_dir/score-recognition" \
   "$PWD/tests/fixtures/business-cards" | tee "$score_dir/recognition.log"
 ```
+
+导出的 VCF 可在 iOS「文件」的「我的 iPhone → CamCard → VCF」中打开。导出完成页也提供系统分享入口。

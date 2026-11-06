@@ -2,11 +2,22 @@ import SwiftUI
 
 @main
 struct CamCardApp: App {
-    private let repository: InMemoryCardRepository
+    private let repository: CardRepository
 
     init() {
         let demoMode = ProcessInfo.processInfo.arguments.contains("--demo-cards")
-        repository = InMemoryCardRepository(cards: demoMode ? [DemoCard.card] : [])
+        let arguments = ProcessInfo.processInfo.arguments
+        if demoMode || arguments.contains("--empty-library") {
+            repository = CardRepository(cards: demoMode ? [DemoCard.card] : [])
+        } else {
+            let support = URL.applicationSupportDirectory
+            let testLibrary = arguments.contains("--test-library")
+            let directory = support.appendingPathComponent(testLibrary ? "CamCardUITests" : "CamCard", isDirectory: true)
+            if testLibrary, arguments.contains("--reset-test-library") {
+                try? FileManager.default.removeItem(at: directory)
+            }
+            repository = CardRepository(directory: directory)
+        }
     }
 
     var body: some Scene {

@@ -1,14 +1,38 @@
+import Contacts
 import SwiftUI
 
 struct CardDetailView: View {
-    let card: BusinessCard
-    var cardImage: CGImage? = nil
-    @State private var showsImage = false
+    let id: UUID
+    let repository: CardRepository
+
+    private enum Page: String, Identifiable {
+        case image, edit, groups, notes, contacts
+        var id: Self { self }
+    }
+
+    @State private var page: Page?
+    @State private var more = false
+    @State private var confirmDelete = false
+    @State private var contactsDenied = false
+    @State private var exportFile: ContactExportFile?
+    @State private var error: String?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
+        if let card = repository.card(id: id) {
+            detail(card)
+                .onAppear {
+                    var updated = card
+                    updated.lastViewedAt = .now
+                    try? repository.save(updated)
+                }
+        }
+    }
+
+    private func detail(_ card: BusinessCard) -> some View {
         let fields = card.fields
-        VStack(spacing: 0) {
+        return VStack(spacing: 0) {
             HStack {
                 Button { dismiss() } label: {
                     Image(systemName: "chevron.left")
@@ -20,7 +44,11 @@ struct CardDetailView: View {
                 Text("名片详情").font(.headline)
                 Spacer()
                 Image(systemName: "star")
-                Image(systemName: "ellipsis").frame(width: 32)
+                Button { more = true } label: {
+                    Image(systemName: "ellipsis").frame(width: 36, height: 44)
+                }
+                .accessibilityLabel("更多")
+                .accessibilityIdentifier("detail-more")
             }
             .foregroundStyle(.white)
             .background(CardPalette.navy.ignoresSafeArea(edges: .top))
@@ -29,35 +57,46 @@ struct CardDetailView: View {
                 VStack(spacing: 10) {
                     summary(fields)
                         .onTapGesture {
-                            if cardImage != nil { showsImage = true }
+                            if card.originalImagePath != nil { page = .image }
                         }
                     HStack {
-                        action("电话", icon: "phone.fill", color: .blue)
-                        action("地址", icon: "mappin.circle.fill", color: .orange)
-                        action("备注", icon: "note.text", color: .green)
-                        action("编辑", icon: "pencil", color: .teal)
+                        Button { call((fields.mobile + fields.officePhone).first) } label: {
+                            action("电话", icon: "phone.fill", color: .blue)
+                        }.disabled((fields.mobile + fields.officePhone).isEmpty)
+                        Button { map(fields.address) } label: {
+                            action("地址", icon: "mappin.circle.fill", color: .orange)
+                        }.disabled(fields.address == nil)
+                        Button { page = .notes } label: { action("备注", icon: "note.text", color: .green) }
+                        Button { page = .edit } label: { action("编辑", icon: "pencil", color: .teal) }
                     }
+                    .buttonStyle(.plain)
                     .padding(.vertical, 10)
                     .background(.white)
 
                     VStack(spacing: 0) {
-                        field(card.groupIDs.isEmpty ? "未分组" : "分组", label: nil, icon: "person.2.fill")
-                        field(card.note ?? "备注", label: nil, icon: "note.text")
+                        let names = repository.groups.filter { card.groupIDs.contains($0.id) }.map(\.name)
+                        detailLink(names.isEmpty ? "未分组" : "分组: " + names.joined(separator: "、"),
+                                   icon: "person.2.fill", id: "detail-groups") { page = .groups }
+                        detailLink(card.notes.first.map { "备注: " + $0.text } ?? "备注",
+                                   icon: "note.text", id: "detail-notes") { page = .notes }
                     }
                     .background(.white)
 
                     VStack(spacing: 0) {
-                        rows("手机", icon: "phone.fill", values: fields.mobile)
-                        rows("办公电话", icon: "phone.fill", values: fields.officePhone)
-                        rows("工作邮箱", icon: "envelope.fill", values: fields.email, identifier: "email")
+                        rows("手机", icon: "phone.fill", values: fields.mobile, onTap: call)
+                        rows("办公电话", icon: "phone.fill", values: fields.officePhone, onTap: call)
+                        rows("工作邮箱", icon: "envelope.fill", values: fields.email, identifier: "email", onTap: email)
                         if let address = fields.address {
-                            field(address, label: "公司地址", icon: "mappin")
+                            Button { map(address) } label: { field(address, label: "公司地址", icon: "mappin") }
+                                .buttonStyle(.plain)
                         }
                         if let company = fields.company {
                             field(company, label: "公司", icon: "building.2.fill")
                         }
                         if let website = fields.website {
-                            field(website, label: "主页", icon: "globe")
+                            Button {
+                                if let url = ContactExport.website(website) { openURL(url) }
+                            } label: { field(website, label: "主页", icon: "globe") }.buttonStyle(.plain)
                         }
                         rows("传真", icon: "printer.fill", values: fields.fax)
                     }
@@ -68,12 +107,19 @@ struct CardDetailView: View {
         }
         .safeAreaInset(edge: .bottom, spacing: 0) {
             HStack(spacing: 10) {
-                Label("存入通讯录", systemImage: "person.crop.rectangle").font(.caption2)
+                Button { page = .contacts } label: {
+                    VStack(spacing: 4) {
+                        Image(systemName: "person.crop.rectangle").font(.title3)
+                        Text(card.contactIdentifier == nil ? "存入通讯录" : "已存").font(.caption2)
+                    }
+                }.accessibilityIdentifier("detail-contacts")
                 Text("向对方递名片").frame(maxWidth: .infinity)
                     .padding(.vertical, 8).overlay(Capsule().strokeBorder(CardPalette.blue))
-                Text("分享名片").frame(maxWidth: .infinity)
-                    .padding(.vertical, 8).foregroundStyle(.white)
-                    .background(.green, in: Capsule())
+                Button { prepareExport(card) } label: {
+                    Text("分享名片").frame(maxWidth: .infinity)
+                        .padding(.vertical, 8).foregroundStyle(.white)
+                        .background(.green, in: Capsule())
+                }
             }
             .font(.footnote)
             .foregroundStyle(CardPalette.blue)
@@ -81,14 +127,152 @@ struct CardDetailView: View {
             .padding(.vertical, 8)
             .background(.white)
         }
-        .sheet(isPresented: $showsImage) {
-            if let cardImage {
-                Image(decorative: cardImage, scale: 1)
-                    .resizable().scaledToFit()
-                    .padding()
+        .overlay {
+            if more { morePanel(card) }
+        }
+        .fullScreenCover(item: $page) { selection in
+            switch selection {
+            case .image:
+                CardImages(original: repository.image(card.originalImagePath), corrected: repository.image(card.correctedImagePath))
+            case .edit:
+                ContactFieldsEditor(fields: card.fields) { fields in
+                    try update { $0.fields = fields }
+                }
+            case .groups:
+                CardGroupsPicker(repository: repository, cardID: id)
+            case .notes:
+                CardNotes(repository: repository, cardID: id)
+            case .contacts:
+                ContactsDestination { try await saveToContacts() }
             }
         }
+        .alert("提示", isPresented: $confirmDelete) {
+            Button("取消", role: .cancel) {}
+            Button("删除名片", role: .destructive) {
+                do {
+                    try repository.delete(card)
+                    dismiss()
+                } catch { self.error = "无法删除名片。" }
+            }
+        } message: { Text("删除未同步名片将无法恢复，请确认是否要删除？") }
+        .alert("无法保存名片到通讯录", isPresented: $contactsDenied) {
+            Button("取消", role: .cancel) {}
+            Button("前往设置") {
+                if let url = URL(string: UIApplication.openSettingsURLString) { openURL(url) }
+            }
+        } message: { Text("请在设置中允许访问通讯录。") }
+        .sheet(item: $exportFile) { file in
+            ContactExportConfirmation(file: file)
+        }
+        .managementError($error)
         .toolbar(.hidden, for: .navigationBar)
+    }
+
+    private func detailLink(_ title: String, icon: String, id: String, perform: @escaping () -> Void) -> some View {
+        Button(action: perform) {
+            HStack(spacing: 0) {
+                field(title, label: nil, icon: icon)
+                Image(systemName: "chevron.right").font(.footnote).foregroundStyle(.secondary)
+                    .padding(.trailing, 16)
+            }.frame(minHeight: 54).contentShape(Rectangle())
+        }.buttonStyle(.plain).accessibilityIdentifier(id)
+    }
+
+    private func morePanel(_ card: BusinessCard) -> some View {
+        VStack {
+            Spacer()
+            VStack(spacing: 0) {
+                HStack(alignment: .top, spacing: 4) {
+                    panelItem(card.contactIdentifier == nil ? "存入通讯录" : "更新到通讯录", icon: "person.crop.rectangle.fill", color: .green) {
+                        page = .contacts
+                    }
+                    panelItem("编辑", icon: "pencil", color: CardPalette.blue) { page = .edit }
+                    panelItem("邀请使用名片全能王", icon: "person.badge.plus", color: CardPalette.blue)
+                    panelItem("导出 VCF", icon: "square.and.arrow.up", color: CardPalette.blue) { prepareExport(card) }
+                }.padding(16)
+                Divider().padding(.horizontal, 16)
+                HStack(alignment: .top, spacing: 4) {
+                    panelItem("分组", icon: "person.2.fill") { page = .groups }
+                    panelItem("备注", icon: "note.text") { page = .notes }
+                    panelItem("提醒", icon: "alarm.fill")
+                    panelItem("删除", icon: "trash.fill") { confirmDelete = true }
+                }.padding(16)
+                Button("取消") { more = false }
+                    .buttonStyle(.plain)
+                    .frame(maxWidth: .infinity, minHeight: 50).background(.white)
+            }
+            .background(CardPalette.background)
+        }
+        .background {
+            Color.black.opacity(0.48).ignoresSafeArea()
+                .onTapGesture { more = false }
+                .accessibilityHidden(true)
+        }
+    }
+
+    private func panelItem(_ title: String, icon: String, color: Color = .secondary,
+                           perform: (() -> Void)? = nil) -> some View {
+        Button {
+            more = false
+            perform?()
+        } label: {
+            VStack(spacing: 8) {
+                Image(systemName: icon).font(.system(size: 26)).foregroundStyle(color)
+                    .frame(width: 58, height: 58).background(.white, in: RoundedRectangle(cornerRadius: 8))
+                Text(title).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+            }.frame(maxWidth: .infinity)
+        }.buttonStyle(.plain).disabled(perform == nil)
+    }
+
+    private func update(_ edit: (inout BusinessCard) -> Void) throws {
+        guard var card = repository.card(id: id) else { throw CocoaError(.fileNoSuchFile) }
+        edit(&card)
+        card.updatedAt = .now
+        try repository.save(card)
+    }
+
+    private func saveToContacts() async throws {
+        guard let card = repository.card(id: id) else { return }
+        let store = CNContactStore()
+        do {
+            guard try await store.requestAccess(for: .contacts) else {
+                page = nil
+                contactsDenied = true
+                return
+            }
+            let contact = try ContactExport.save(card, in: store)
+            try update { $0.contactIdentifier = contact }
+            page = nil
+        } catch let error as CNError where error.code == .authorizationDenied {
+            page = nil
+            contactsDenied = true
+        }
+    }
+
+    private func prepareExport(_ card: BusinessCard) {
+        do {
+            exportFile = try ContactExportFile(fields: card.fields)
+        } catch { self.error = "无法生成 VCF。" }
+    }
+
+    private func call(_ number: String?) {
+        guard let number else { return }
+        let digits = number.filter { $0.isNumber || $0 == "+" }
+        if let url = URL(string: "tel:" + digits), !digits.isEmpty { openURL(url) }
+    }
+
+    private func email(_ address: String) {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = address
+        if let url = components.url { openURL(url) }
+    }
+
+    private func map(_ address: String?) {
+        guard let address else { return }
+        var components = URLComponents(string: "https://maps.apple.com/")
+        components?.queryItems = [URLQueryItem(name: "q", value: address)]
+        if let url = components?.url { openURL(url) }
     }
 
     private func summary(_ fields: ContactFields) -> some View {
@@ -149,13 +333,22 @@ struct CardDetailView: View {
         .padding(.vertical, 10)
     }
 
-    private func rows(_ label: String, icon: String, values: [String], identifier: String? = nil) -> some View {
+    private func rows(_ label: String, icon: String, values: [String], identifier: String? = nil,
+                      onTap: ((String) -> Void)? = nil) -> some View {
         ForEach(values.indices, id: \.self) { index in
-            field(values[index], label: label, icon: icon)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel(label)
-                .accessibilityValue(values[index])
-                .accessibilityIdentifier("\(identifier ?? label)-\(index)")
+            let value = values[index]
+            Group {
+                if let onTap {
+                    Button { onTap(value) } label: { field(value, label: label, icon: icon) }
+                        .buttonStyle(.plain)
+                } else {
+                    field(value, label: label, icon: icon)
+                }
+            }
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(label)
+            .accessibilityValue(value)
+            .accessibilityIdentifier("\(identifier ?? label)-\(index)")
         }
     }
 }
