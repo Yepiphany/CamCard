@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-第二阶段提供可运行的名片夹、扫描页框架和名片详情。默认使用空的内存存储，使用 `--demo-cards` 启动时显示一张合成名片。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
+第三阶段支持从扫描页导入照片、自动或手动裁剪及预览 Apple Vision OCR 原文。默认使用空的内存存储，使用 `--demo-cards` 启动时显示一张合成名片。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
 
 - [需求范围](docs/requirements.md)
 - [黑盒规格](docs/spec.md)
@@ -23,6 +23,9 @@
 xcodebuild -project CamCard.xcodeproj -scheme CamCard \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
   -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
+
+# 将 CC-001 导入已启动的专用测试模拟器，确保它是照片选择器中的第一张。
+xcrun simctl addmedia booted tests/fixtures/business-cards/images/CC-001.png
 
 xcodebuild -project CamCard.xcodeproj -scheme CamCard \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \

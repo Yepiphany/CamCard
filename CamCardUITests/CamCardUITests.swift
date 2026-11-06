@@ -15,9 +15,45 @@ final class CamCardUITests: XCTestCase {
 
         app.buttons["open-scanner"].tap()
         XCTAssertTrue(app.buttons["close-scanner"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.staticTexts["相册"].exists)
+        XCTAssertTrue(app.buttons["scan-photo-picker"].exists)
         app.buttons["close-scanner"].tap()
         XCTAssertTrue(app.staticTexts["card-count"].waitForExistence(timeout: 5))
+    }
+
+    func testSimulatorCameraUnavailable() {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["open-scanner"].tap()
+        app.buttons["scan-shutter"].tap()
+        XCTAssertTrue(app.alerts.staticTexts["当前设备无法使用相机，请从相册导入。"].waitForExistence(timeout: 5), app.debugDescription)
+        app.alerts.buttons["好"].tap()
+        XCTAssertTrue(app.buttons["scan-photo-picker"].exists)
+    }
+
+    func testPhotoImportAndManualCrop() {
+        let app = XCUIApplication()
+        app.launch()
+        app.buttons["open-scanner"].tap()
+        app.buttons["scan-photo-picker"].tap()
+
+        let photo = app.images.matching(identifier: "PXGGridLayout-Info").firstMatch
+        XCTAssertTrue(photo.waitForExistence(timeout: 8), app.debugDescription)
+        photo.tap()
+
+        XCTAssertTrue(app.staticTexts["scan-result"].waitForExistence(timeout: 25))
+        let rawText = app.staticTexts["scan-raw-text"]
+        XCTAssertTrue(rawText.label.localizedCaseInsensitiveContains("Northglass Studio"))
+
+        app.buttons["scan-crop"].tap()
+        XCTAssertTrue(app.buttons["crop-rotate"].waitForExistence(timeout: 5))
+        app.buttons["crop-rotate"].tap()
+        app.buttons["取消"].tap()
+        XCTAssertTrue(rawText.label.localizedCaseInsensitiveContains("Northglass Studio"))
+
+        app.buttons["scan-crop"].tap()
+        app.buttons["crop-done"].tap()
+        XCTAssertTrue(rawText.waitForExistence(timeout: 25))
+        XCTAssertTrue(rawText.label.localizedCaseInsensitiveContains("Northglass Studio"))
     }
 
     func testDemoCardDetailAndReturn() {
