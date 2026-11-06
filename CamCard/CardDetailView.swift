@@ -2,6 +2,8 @@ import SwiftUI
 
 struct CardDetailView: View {
     let card: BusinessCard
+    var cardImage: CGImage? = nil
+    @State private var showsImage = false
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -26,6 +28,9 @@ struct CardDetailView: View {
             ScrollView {
                 VStack(spacing: 10) {
                     summary(fields)
+                        .onTapGesture {
+                            if cardImage != nil { showsImage = true }
+                        }
                     HStack {
                         action("电话", icon: "phone.fill", color: .blue)
                         action("地址", icon: "mappin.circle.fill", color: .orange)
@@ -75,6 +80,13 @@ struct CardDetailView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .background(.white)
+        }
+        .sheet(isPresented: $showsImage) {
+            if let cardImage {
+                Image(decorative: cardImage, scale: 1)
+                    .resizable().scaledToFit()
+                    .padding()
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
     }

@@ -73,13 +73,13 @@ enum ScanProcessor {
         return result
     }
 
-    static func recognize(original: CGImage, source: CGImage, boundary: CardBoundary? = nil) throws -> ScanResult {
+    static func recognize(original: CGImage, source: CGImage, boundary: CardBoundary? = nil, accurate: Bool = true) throws -> ScanResult {
         let detected = try boundary ?? detect(in: source)
         let selected = detected ?? .wholeImage
         let corrected = detected == nil ? source : try crop(source, to: selected)
 
         let request = VNRecognizeTextRequest()
-        request.recognitionLevel = .accurate
+        request.recognitionLevel = accurate ? .accurate : .fast
         let supported = try request.supportedRecognitionLanguages()
         request.recognitionLanguages = ["zh-Hans", "zh-Hant", "en-US"].filter(supported.contains)
         try VNImageRequestHandler(cgImage: corrected).perform([request])
@@ -91,11 +91,12 @@ enum ScanProcessor {
                 width: box.width, height: box.height
             )
         }
+        let rawText = regions.map(\.text).joined(separator: "\n")
         let recognition = RecognitionRecord(
             languages: request.recognitionLanguages,
-            rawText: regions.map(\.text).joined(separator: "\n"),
+            rawText: rawText,
             regions: regions,
-            candidates: ContactFields(),
+            candidates: ContactExtraction.fields(from: rawText),
             recognizedAt: .now
         )
         return ScanResult(original: original, source: source, boundary: selected,

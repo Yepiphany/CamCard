@@ -1,11 +1,14 @@
 import AVFoundation
-import PhotosUI
 import SwiftUI
 
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
 
-    @State private var selection: PhotosPickerItem?
+    let onSave: (ScanResult, ContactFields) throws -> Void
+
+    @State private var showsAlbum = false
+    @State private var accurate = false
+    @State private var fields = ContactFields()
     @State private var showsCamera = false
     @State private var showsCrop = false
     @State private var result: ScanResult?
@@ -29,24 +32,18 @@ struct ScannerView: View {
                     .allowsHitTesting(false)
             }
         }
-        .onChange(of: selection) { _, item in
-            guard let item else { return }
-            process {
-                guard let data = try await item.loadTransferable(type: Data.self) else {
-                    throw ScanProcessor.ScanError.unreadableImage
-                }
-                let image = try ScanProcessor.decode(data)
-                return try ScanProcessor.recognize(original: image, source: image)
+        .fullScreenCover(isPresented: $showsAlbum) {
+            ScanAlbum { data in
+                showsAlbum = false
+                recognize(data)
             }
+            .preferredColorScheme(.light)
         }
         .fullScreenCover(isPresented: $showsCamera) {
             CameraCapture { data in
                 showsCamera = false
                 guard let data else { return }
-                process {
-                    let image = try ScanProcessor.decode(data)
-                    return try ScanProcessor.recognize(original: image, source: image)
-                }
+                recognize(data)
             }
             .ignoresSafeArea()
         }
@@ -54,12 +51,15 @@ struct ScannerView: View {
             if let result {
                 CropEditor(source: result.source, boundary: result.boundary) { source, boundary in
                     showsCrop = false
+                    let accurate = accurate
                     process {
-                        try ScanProcessor.recognize(original: result.original, source: source, boundary: boundary)
+                        try ScanProcessor.recognize(original: result.original, source: source,
+                                                    boundary: boundary, accurate: accurate)
                     }
                 }
             }
         }
+        .preferredColorScheme(result == nil ? .dark : .light)
         .alert("扫描名片", isPresented: Binding(
             get: { message != nil },
             set: { if !$0 { message = nil } }
@@ -90,11 +90,8 @@ struct ScannerView: View {
                 .accessibilityIdentifier("close-scanner")
                 Spacer()
                 HStack {
-                    Text("基础识别").padding(.horizontal, 14)
-                    Text("AI高精度识别")
-                        .padding(.horizontal, 14).padding(.vertical, 5)
-                        .foregroundStyle(.indigo)
-                        .background(.white, in: Capsule())
+                    recognitionMode("基础识别", accurate: false)
+                    recognitionMode("AI高精度识别", accurate: true)
                 }
                 .font(.subheadline)
                 .padding(3)
@@ -105,20 +102,41 @@ struct ScannerView: View {
             .padding(.horizontal, 20)
 
             GeometryReader { proxy in
+                let width = min(proxy.size.width * 0.76, proxy.size.height * 0.60)
                 Rectangle()
                     .strokeBorder(.white, lineWidth: 1.5)
-                    .aspectRatio(0.60, contentMode: .fit)
-                    .frame(maxWidth: proxy.size.width - 64, maxHeight: proxy.size.height - 12)
+                    .overlay(alignment: .top) {
+                        Text("请将镜头靠近名片")
+                            .font(.subheadline)
+                            .padding(5)
+                            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
+                            .padding(.top, 7)
+                    }
+                    .overlay(alignment: .bottom) {
+                        Button(action: toggleTorch) {
+                            Label("轻触照亮", systemImage: "flashlight.on.fill")
+                                .font(.footnote).padding(8)
+                                .background(.black.opacity(0.65), in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.bottom, 20)
+                    }
+                    .frame(width: max(0, width), height: max(0, width / 0.60))
                     .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
             }
             .background(.black.opacity(0.35))
 
-            HStack(spacing: 22) {
-                Text("连续拍摄").font(.footnote).foregroundStyle(.secondary)
-                Text("单张拍摄").font(.subheadline.bold())
+            HStack(spacing: 16) {
+                Text("连续拍摄").font(.caption2).foregroundStyle(.secondary)
+                Text("多张拍摄").font(.footnote).foregroundStyle(.secondary)
+                VStack(spacing: 4) {
+                    Capsule().fill(CardPalette.blue).frame(width: 23, height: 3)
+                    Text("单张拍摄").font(.subheadline.bold())
+                }
+                Text("二维码").font(.footnote).foregroundStyle(.secondary)
             }
             HStack {
-                PhotosPicker(selection: $selection, matching: .images) {
+                Button { showsAlbum = true } label: {
                     VStack(spacing: 6) {
                         Image(systemName: "photo").font(.title3)
                         Text("相册").font(.caption)
@@ -149,16 +167,18 @@ struct ScannerView: View {
     private func resultView(_ result: ScanResult) -> some View {
         VStack(spacing: 0) {
             HStack {
-                Button("重新拍摄") { self.result = nil }
+                Button("重新拍摄") {
+                    self.result = nil
+                    fields = ContactFields()
+                }
                     .disabled(work != nil)
                 Spacer()
-                Text("识别结果").font(.headline)
+                Text("编辑名片").font(.headline)
                     .accessibilityIdentifier("scan-result")
                 Spacer()
-                Button("关闭") {
-                    work?.cancel()
-                    dismiss()
-                }
+                Button("保存", action: save)
+                    .disabled(work != nil)
+                    .accessibilityIdentifier("scan-save")
             }
             .padding(16)
 
@@ -197,18 +217,105 @@ struct ScannerView: View {
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
-                    Text("识别语言").font(.subheadline.bold())
-                    Text(result.recognition.languages.joined(separator: "、"))
-                        .font(.footnote)
-                    Text("OCR 原文").font(.subheadline.bold())
-                    Text(result.recognition.rawText.isEmpty ? "未识别到文字" : result.recognition.rawText)
-                        .textSelection(.enabled)
-                        .accessibilityIdentifier("scan-raw-text")
+                    HStack {
+                        Text("识别语言")
+                        Spacer()
+                        Text(result.recognition.languages.map(languageName).joined(separator: "、"))
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(12)
+                    .background(.white)
+
+                    VStack(spacing: 1) {
+                        editRow("姓名", value: optionalField(\.name))
+                        editRow("手机", value: multipleField(\.mobile))
+                        editRow("办公电话", value: multipleField(\.officePhone))
+                        editRow("工作邮箱", value: multipleField(\.email))
+                        editRow("公司", value: optionalField(\.company))
+                        editRow("职位", value: optionalField(\.jobTitle))
+                        editRow("主页", value: optionalField(\.website))
+                        editRow("公司地址", value: optionalField(\.address))
+                        editRow("传真", value: multipleField(\.fax))
+                    }
+
+                    DisclosureGroup("OCR 原文") {
+                        Text(result.recognition.rawText.isEmpty ? "未识别到文字" : result.recognition.rawText)
+                            .textSelection(.enabled)
+                            .accessibilityIdentifier("scan-raw-text")
+                    }
+                    .padding(12)
+                    .background(.white)
+
+                    Button("取消") { dismiss() }
+                        .frame(maxWidth: .infinity)
                 }
                 .padding(16)
             }
         }
         .background(CardPalette.background)
+    }
+
+    private func recognitionMode(_ title: String, accurate: Bool) -> some View {
+        Button { self.accurate = accurate } label: {
+            Text(title)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 5)
+                .foregroundStyle(self.accurate == accurate ? .black : .white)
+                .background(self.accurate == accurate ? .white : .clear, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .disabled(work != nil)
+        .accessibilityAddTraits(self.accurate == accurate ? .isSelected : [])
+    }
+
+    private func toggleTorch() {
+        cameraDenied = false
+        message = "请在打开的相机界面调整闪光灯。"
+    }
+
+    private func languageName(_ code: String) -> String {
+        Locale(identifier: "zh-Hans").localizedString(forIdentifier: code) ?? code
+    }
+
+    private func editRow(_ label: String, value: Binding<String>) -> some View {
+        HStack(spacing: 12) {
+            Text(label).foregroundStyle(.secondary).frame(width: 75, alignment: .leading)
+            TextField(label, text: value, axis: .vertical)
+                .accessibilityIdentifier("field-\(label)")
+        }
+        .padding(12)
+        .background(.white)
+        .disabled(work != nil)
+    }
+
+    private func optionalField(_ keyPath: WritableKeyPath<ContactFields, String?>) -> Binding<String> {
+        Binding(get: { fields[keyPath: keyPath] ?? "" }, set: { fields[keyPath: keyPath] = $0.isEmpty ? nil : $0 })
+    }
+
+    private func multipleField(_ keyPath: WritableKeyPath<ContactFields, [String]>) -> Binding<String> {
+        Binding(get: { fields[keyPath: keyPath].joined(separator: "、") }, set: {
+            fields[keyPath: keyPath] = $0.split(whereSeparator: { $0 == "、" || $0.isNewline })
+                .map(String.init)
+        })
+    }
+
+    private func save() {
+        guard let result, work == nil else { return }
+        do {
+            try onSave(result, fields)
+            dismiss()
+        } catch {
+            cameraDenied = false
+            message = "保存失败，请重试。"
+        }
+    }
+
+    private func recognize(_ data: Data) {
+        let accurate = accurate
+        process {
+            let image = try ScanProcessor.decode(data)
+            return try ScanProcessor.recognize(original: image, source: image, accurate: accurate)
+        }
     }
 
     private func openCamera() {
@@ -247,11 +354,13 @@ struct ScannerView: View {
         work = Task {
             defer {
                 work = nil
-                selection = nil
             }
             do {
                 let scanned = try await Task.detached(priority: .userInitiated, operation: operation).value
                 try Task.checkCancellation()
+                if result == nil || fields == result?.recognition.candidates {
+                    fields = scanned.recognition.candidates
+                }
                 result = scanned
             } catch is CancellationError {
                 return
@@ -304,6 +413,7 @@ private struct CropEditor: View {
         VStack {
             HStack {
                 Button("取消") { dismiss() }
+                    .accessibilityIdentifier("crop-cancel")
                 Spacer()
                 Button("旋转") {
                     if let rotated = try? ScanProcessor.rotate(source) {
@@ -315,6 +425,7 @@ private struct CropEditor: View {
                 Spacer()
                 Button("完成") { onConfirm(source, boundary) }
                     .disabled(!boundary.isValid)
+                    .foregroundStyle(CardPalette.blue)
                     .accessibilityIdentifier("crop-done")
             }
             .padding(16)
@@ -342,6 +453,27 @@ private struct CropEditor: View {
                                         x: min(1, max(0, value.location.x / size.width)),
                                         y: min(1, max(0, value.location.y / size.height))
                                     )
+                                })
+                    }
+                    ForEach(boundary.corners.indices, id: \.self) { index in
+                        let next = (index + 1) % 4
+                        let a = boundary.corners[index]
+                        let b = boundary.corners[next]
+                        let middle = CGPoint(x: (a.x + b.x) / 2, y: (a.y + b.y) / 2)
+                        Circle().fill(.white)
+                            .overlay(Circle().strokeBorder(CardPalette.blue))
+                            .frame(width: 16, height: 16)
+                            .frame(width: 36, height: 36)
+                            .contentShape(Rectangle())
+                            .position(point(middle, in: size))
+                            .accessibilityLabel("边缘控制点 \(index + 1)")
+                            .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("crop-image"))
+                                .onChanged { value in
+                                    guard size.width > 0, size.height > 0 else { return }
+                                    let dx = min(1 - max(a.x, b.x), max(-min(a.x, b.x), value.location.x / size.width - middle.x))
+                                    let dy = min(1 - max(a.y, b.y), max(-min(a.y, b.y), value.location.y / size.height - middle.y))
+                                    boundary.corners[index] = CGPoint(x: a.x + dx, y: a.y + dy)
+                                    boundary.corners[next] = CGPoint(x: b.x + dx, y: b.y + dy)
                                 })
                     }
                 }

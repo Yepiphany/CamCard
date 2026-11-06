@@ -36,24 +36,56 @@ final class CamCardUITests: XCTestCase {
         app.buttons["open-scanner"].tap()
         app.buttons["scan-photo-picker"].tap()
 
-        let photo = app.images.matching(identifier: "PXGGridLayout-Info").firstMatch
+        let photo = app.buttons.matching(identifier: "album-photo").firstMatch
         XCTAssertTrue(photo.waitForExistence(timeout: 8), app.debugDescription)
+        let done = app.buttons["album-done"]
+        XCTAssertFalse(done.isEnabled)
         photo.tap()
+        XCTAssertTrue(done.isEnabled)
+        XCTAssertFalse(app.staticTexts["scan-result"].exists)
+        done.tap()
 
         XCTAssertTrue(app.staticTexts["scan-result"].waitForExistence(timeout: 25))
-        let rawText = app.staticTexts["scan-raw-text"]
-        XCTAssertTrue(rawText.label.localizedCaseInsensitiveContains("Northglass Studio"))
+        let company = app.descendants(matching: .any)["field-公司"]
+        XCTAssertEqual(company.value as? String, "Northglass Studio")
 
         app.buttons["scan-crop"].tap()
         XCTAssertTrue(app.buttons["crop-rotate"].waitForExistence(timeout: 5))
         app.buttons["crop-rotate"].tap()
-        app.buttons["取消"].tap()
-        XCTAssertTrue(rawText.label.localizedCaseInsensitiveContains("Northglass Studio"))
+        app.buttons["crop-cancel"].tap()
+        XCTAssertEqual(company.value as? String, "Northglass Studio")
 
         app.buttons["scan-crop"].tap()
         app.buttons["crop-done"].tap()
-        XCTAssertTrue(rawText.waitForExistence(timeout: 25))
-        XCTAssertTrue(rawText.label.localizedCaseInsensitiveContains("Northglass Studio"))
+        let save = app.buttons["scan-save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 25))
+        let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: save)
+        XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 25), .completed)
+        save.tap()
+        XCTAssertTrue(app.staticTexts["名片详情"].waitForExistence(timeout: 8))
+        XCTAssertTrue(app.staticTexts["Northglass Studio"].exists)
+        app.buttons["detail-back"].tap()
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("1张"))
+    }
+
+    func testLibrarySearchAndGroupCreation() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--demo-cards"]
+        app.launch()
+
+        app.buttons["library-search"].tap()
+        let search = app.textFields["search-query"]
+        search.tap()
+        search.typeText("northglass")
+        XCTAssertTrue(app.buttons["Mara Quill"].exists)
+        app.navigationBars["搜索"].buttons.firstMatch.tap()
+
+        app.buttons["library-groups"].tap()
+        app.buttons["新建分组"].tap()
+        let dialog = app.alerts["新建分组"]
+        dialog.textFields.firstMatch.typeText("Review")
+        dialog.buttons["好"].tap()
+        XCTAssertTrue(app.buttons["Review (0)"].exists)
     }
 
     func testDemoCardDetailAndReturn() {
