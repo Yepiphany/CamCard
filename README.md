@@ -35,3 +35,18 @@ xcodebuild -project CamCard.xcodeproj -scheme CamCard \
 ```
 
 课程交付使用模拟器演示。发行渠道和签名配置待确认。
+
+## 第四阶段识别跑分
+
+启动用于验收的 iPhone 18 Pro 模拟器，在仓库根目录运行以下命令。输出包含合成样本的 OCR 原文、候选值、差异和字段计分。评分沿用应用的基础识别设置，包含语言兼容回退，且直接调用应用的 Vision 与解析代码。
+
+```sh
+score_dir=$(mktemp -d)
+xcrun --sdk iphonesimulator swiftc \
+  -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
+  -target "$(uname -m)-apple-ios27.0-simulator" \
+  CamCard/BusinessCard.swift CamCard/ContactExtraction.swift CamCard/ScanProcessor.swift \
+  scripts/ScoreRecognition.swift -o "$score_dir/score-recognition"
+xcrun simctl spawn booted "$score_dir/score-recognition" \
+  "$PWD/tests/fixtures/business-cards" | tee "$score_dir/recognition.log"
+```

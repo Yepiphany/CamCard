@@ -46,8 +46,14 @@ final class CamCardUITests: XCTestCase {
         done.tap()
 
         XCTAssertTrue(app.staticTexts["scan-result"].waitForExistence(timeout: 25))
+        XCTAssertTrue(app.staticTexts["英语, 简体中文, 繁体中文"].exists)
         let company = app.descendants(matching: .any)["field-公司"]
         XCTAssertEqual(company.value as? String, "Northglass Studio")
+
+        let editorScreenshot = XCTAttachment(screenshot: app.screenshot())
+        editorScreenshot.name = "CC-001 编辑名片"
+        editorScreenshot.lifetime = .keepAlways
+        add(editorScreenshot)
 
         app.buttons["scan-crop"].tap()
         XCTAssertTrue(app.buttons["crop-rotate"].waitForExistence(timeout: 5))
@@ -55,15 +61,38 @@ final class CamCardUITests: XCTestCase {
         app.buttons["crop-cancel"].tap()
         XCTAssertEqual(company.value as? String, "Northglass Studio")
 
+        let email = app.descendants(matching: .any)["field-工作邮箱-0"]
+        XCTAssertEqual(email.value as? String, "mara@example.com")
+        email.coordinate(withNormalizedOffset: CGVector(dx: 0.97, dy: 0.5)).tap()
+        email.typeText(String(repeating: XCUIKeyboardKey.delete.rawValue, count: "mara@example.com".count))
+        XCTAssertFalse((email.value as? String ?? "").contains("@"))
+        app.swipeDown()
+
         app.buttons["scan-crop"].tap()
         app.buttons["crop-done"].tap()
         let save = app.buttons["scan-save"]
         XCTAssertTrue(save.waitForExistence(timeout: 25))
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "enabled == true"), object: save)
         XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 25), .completed)
+        XCTAssertFalse((email.value as? String ?? "").contains("@"))
+
+        app.buttons["scan-name"].tap()
+        let givenName = app.textFields["field-given-name"]
+        XCTAssertTrue(givenName.waitForExistence(timeout: 5))
+        let nameScreenshot = XCTAttachment(screenshot: app.screenshot())
+        nameScreenshot.name = "CC-001 姓名子页"
+        nameScreenshot.lifetime = .keepAlways
+        add(nameScreenshot)
+        givenName.tap()
+        givenName.typeText("a")
+        app.buttons["scan-name-back"].tap()
+        XCTAssertTrue(app.buttons["scan-name"].label.contains("Maraa"))
+
         save.tap()
         XCTAssertTrue(app.staticTexts["名片详情"].waitForExistence(timeout: 8))
         XCTAssertTrue(app.staticTexts["Northglass Studio"].exists)
+        XCTAssertFalse(app.descendants(matching: .any)["email-0"].exists)
+        XCTAssertEqual(app.staticTexts["detail-name"].label, "Maraa Quill")
         app.buttons["detail-back"].tap()
         XCTAssertTrue(app.staticTexts["card-count"].label.contains("1张"))
     }
