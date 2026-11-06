@@ -9,14 +9,15 @@ final class CamCardUITests: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        XCTAssertTrue(app.navigationBars["名片夹"].exists)
-        XCTAssertTrue(app.staticTexts["名片（0 张）"].exists)
-        XCTAssertTrue(app.staticTexts["还没有名片"].exists)
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("0张"))
+        XCTAssertTrue(app.staticTexts["30秒快速认识CC"].exists)
+        XCTAssertTrue(app.staticTexts["请输入姓名/公司/职位搜索"].exists)
 
         app.buttons["open-scanner"].tap()
-        XCTAssertTrue(app.navigationBars["扫描名片"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["close-scanner"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["相册"].exists)
         app.buttons["close-scanner"].tap()
-        XCTAssertTrue(app.navigationBars["名片夹"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["card-count"].waitForExistence(timeout: 5))
     }
 
     func testDemoCardDetailAndReturn() {
@@ -24,19 +25,19 @@ final class CamCardUITests: XCTestCase {
         app.launchArguments = ["--demo-cards"]
         app.launch()
 
-        XCTAssertTrue(app.staticTexts["名片（1 张）"].exists)
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("1张"))
         let row = app.buttons["card-00000000-0000-0000-0000-000000000001"]
         XCTAssertTrue(row.exists)
         row.tap()
 
-        let detail = app.navigationBars["名片详情"]
+        let detail = app.staticTexts["名片详情"]
         XCTAssertTrue(detail.waitForExistence(timeout: 5))
         XCTAssertEqual(app.staticTexts["detail-name"].label, "Mara Quill")
         XCTAssertTrue(app.staticTexts["Northglass Studio"].exists)
         let email = app.descendants(matching: .any)["email-0"]
         XCTAssertEqual(email.value as? String, "mara@example.com")
 
-        detail.buttons.element(boundBy: 0).tap()
+        app.buttons["detail-back"].tap()
         XCTAssertTrue(row.waitForExistence(timeout: 5))
     }
 }

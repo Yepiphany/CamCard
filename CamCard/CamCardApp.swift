@@ -12,6 +12,7 @@ struct CamCardApp: App {
     var body: some Scene {
         WindowGroup {
             CardLibraryView(repository: repository)
+                .preferredColorScheme(.light)
         }
     }
 }
