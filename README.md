@@ -17,6 +17,6 @@
 
 ## 开发环境
 
-使用 Xcode 27.2 和 iOS 模拟器。可用 `xcrun simctl list devices available` 检查模拟设备。工程建立后，在 Xcode 中打开工程，选择已安装的 iPhone 模拟器并运行。具体 Scheme、构建和测试命令随工程一起验证并补录。
+使用 Xcode 27.2（27B52）和 iPhone 18 Pro 模拟器，运行 iOS 27.2（24B8117）。2026-11-06 已验证模拟器启动、导入测试图片 CC-001 及启动系统「照片」。可用 `xcrun simctl list devices available` 检查模拟设备。工程建立后，在 Xcode 中打开工程，选择已安装的 iPhone 模拟器并运行。具体 Scheme、构建和测试命令随工程一起验证并补录。
 
 课程交付使用模拟器演示。发行渠道和签名配置待确认。
