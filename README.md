@@ -6,7 +6,7 @@
 
 ## 当前状态
 
-当前处于规格准备阶段。应用工程和测试目标将在下阶段建立。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
+第二阶段提供可运行的名片夹、扫描页框架和名片详情。默认使用空的内存存储，使用 `--demo-cards` 启动时显示一张合成名片。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
 
 - [需求范围](docs/requirements.md)
 - [黑盒规格](docs/spec.md)
@@ -17,6 +17,16 @@
 
 ## 开发环境
 
-使用 Xcode 27.2（27B52）和 iPhone 18 Pro 模拟器，运行 iOS 27.2（24B8117）。2026-11-06 已验证模拟器启动、导入测试图片 CC-001 及启动系统「照片」。可用 `xcrun simctl list devices available` 检查模拟设备。工程建立后，在 Xcode 中打开工程，选择已安装的 iPhone 模拟器并运行。具体 Scheme、构建和测试命令随工程一起验证并补录。
+使用 Xcode 27.2（27B52）和 iPhone 18 Pro 模拟器，运行 iOS 27.2（24B8117）。2026-11-06 已验证模拟器启动、导入测试图片 CC-001 及启动系统「照片」。可用 `xcrun simctl list devices available` 检查模拟设备。打开 `CamCard.xcodeproj`，选择共享的 `CamCard` Scheme 和 iPhone 18 Pro，然后运行。Xcode 27.2 可通过 Device Hub 查看模拟器画面。要手动验证详情，在 Scheme 的 Run 参数中加入 `--demo-cards`，重新运行并点击 Mara Quill。
+
+```sh
+xcodebuild -project CamCard.xcodeproj -scheme CamCard \
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
+  -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
+
+xcodebuild -project CamCard.xcodeproj -scheme CamCard \
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
+  -derivedDataPath DerivedData -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO test
+```
 
 课程交付使用模拟器演示。发行渠道和签名配置待确认。

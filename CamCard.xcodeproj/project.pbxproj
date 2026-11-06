@@ -1,0 +1,211 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+		000000000000000000000006 = {
+			isa = PBXProject;
+			attributes = {LastUpgradeCheck = 2720; TargetAttributes = {000000000000000000000001 = {TestTargetID = 000000000000000000000002;};};};
+			buildConfigurationList = 000000000000000000000003;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			knownRegions = (en, Base, "zh-Hans");
+			mainGroup = 000000000000000000000004;
+			productRefGroup = 000000000000000000000005;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (000000000000000000000002, 000000000000000000000001);
+		};
+		000000000000000000000004 = {
+			isa = PBXGroup;
+			children = (000000000000000000000007, 000000000000000000000008, 000000000000000000000005);
+			sourceTree = "<group>";
+		};
+		000000000000000000000005 = {
+			isa = PBXGroup;
+			children = (000000000000000000000009, 00000000000000000000000A);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		000000000000000000000007 = {
+			isa = PBXGroup;
+			children = (00000000000000000000000B, 00000000000000000000000C, 00000000000000000000000D, 00000000000000000000000E, 00000000000000000000000F);
+			path = CamCard;
+			sourceTree = "<group>";
+		};
+		00000000000000000000000B = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = BusinessCard.swift;
+			sourceTree = "<group>";
+		};
+		000000000000000000000010 = {
+			isa = PBXBuildFile;
+			fileRef = 00000000000000000000000B;
+		};
+		00000000000000000000000C = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CamCardApp.swift;
+			sourceTree = "<group>";
+		};
+		000000000000000000000011 = {
+			isa = PBXBuildFile;
+			fileRef = 00000000000000000000000C;
+		};
+		00000000000000000000000D = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CardDetailView.swift;
+			sourceTree = "<group>";
+		};
+		000000000000000000000012 = {
+			isa = PBXBuildFile;
+			fileRef = 00000000000000000000000D;
+		};
+		00000000000000000000000E = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CardLibraryView.swift;
+			sourceTree = "<group>";
+		};
+		000000000000000000000013 = {
+			isa = PBXBuildFile;
+			fileRef = 00000000000000000000000E;
+		};
+		00000000000000000000000F = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CardRepository.swift;
+			sourceTree = "<group>";
+		};
+		000000000000000000000014 = {
+			isa = PBXBuildFile;
+			fileRef = 00000000000000000000000F;
+		};
+		000000000000000000000015 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (000000000000000000000010, 000000000000000000000011, 000000000000000000000012, 000000000000000000000013, 000000000000000000000014);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		000000000000000000000009 = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.application;
+			path = CamCard.app;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		000000000000000000000002 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 000000000000000000000016;
+			buildPhases = (000000000000000000000015);
+			buildRules = ();
+			dependencies = ();
+			name = CamCard;
+			productName = CamCard;
+			productReference = 000000000000000000000009;
+			productType = "com.apple.product-type.application";
+		};
+		000000000000000000000008 = {
+			isa = PBXGroup;
+			children = (000000000000000000000017);
+			path = CamCardUITests;
+			sourceTree = "<group>";
+		};
+		000000000000000000000017 = {
+			isa = PBXFileReference;
+			lastKnownFileType = sourcecode.swift;
+			path = CamCardUITests.swift;
+			sourceTree = "<group>";
+		};
+		000000000000000000000018 = {
+			isa = PBXBuildFile;
+			fileRef = 000000000000000000000017;
+		};
+		000000000000000000000019 = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (000000000000000000000018);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		00000000000000000000000A = {
+			isa = PBXFileReference;
+			explicitFileType = wrapper.cfbundle;
+			path = CamCardUITests.xctest;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		000000000000000000000001 = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 00000000000000000000001A;
+			buildPhases = (000000000000000000000019);
+			buildRules = ();
+			dependencies = (00000000000000000000001B);
+			name = CamCardUITests;
+			productName = CamCardUITests;
+			productReference = 00000000000000000000000A;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+		00000000000000000000001B = {
+			isa = PBXTargetDependency;
+			target = 000000000000000000000002;
+			targetProxy = 00000000000000000000001C;
+		};
+		00000000000000000000001C = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 000000000000000000000006;
+			proxyType = 1;
+			remoteGlobalIDString = 000000000000000000000002;
+			remoteInfo = CamCard;
+		};
+		00000000000000000000001D = {
+			isa = XCBuildConfiguration;
+			name = Debug;
+			buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; SWIFT_OPTIMIZATION_LEVEL = "-Onone"; DEBUG_INFORMATION_FORMAT = dwarf; };
+		};
+		00000000000000000000001E = {
+			isa = XCBuildConfiguration;
+			name = Release;
+			buildSettings = { ALWAYS_SEARCH_USER_PATHS = NO; IPHONEOS_DEPLOYMENT_TARGET = 17.0; SDKROOT = iphoneos; SWIFT_VERSION = 5.0; SWIFT_OPTIMIZATION_LEVEL = "-O"; DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym"; };
+		};
+		000000000000000000000003 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (00000000000000000000001D, 00000000000000000000001E);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		00000000000000000000001F = {
+			isa = XCBuildConfiguration;
+			name = Debug;
+			buildSettings = { GENERATE_INFOPLIST_FILE = YES; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; PRODUCT_BUNDLE_IDENTIFIER = com.yepiphany.camcard; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0; INFOPLIST_KEY_CFBundleDisplayName = CamCard; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; };
+		};
+		000000000000000000000020 = {
+			isa = XCBuildConfiguration;
+			name = Release;
+			buildSettings = { GENERATE_INFOPLIST_FILE = YES; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; PRODUCT_BUNDLE_IDENTIFIER = com.yepiphany.camcard; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0; INFOPLIST_KEY_CFBundleDisplayName = CamCard; INFOPLIST_KEY_UILaunchScreen_Generation = YES; INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES; };
+		};
+		000000000000000000000016 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (00000000000000000000001F, 000000000000000000000020);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		000000000000000000000021 = {
+			isa = XCBuildConfiguration;
+			name = Debug;
+			buildSettings = { GENERATE_INFOPLIST_FILE = YES; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; PRODUCT_BUNDLE_IDENTIFIER = com.yepiphany.camcard.uitests; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0; TEST_TARGET_NAME = CamCard; };
+		};
+		000000000000000000000022 = {
+			isa = XCBuildConfiguration;
+			name = Release;
+			buildSettings = { GENERATE_INFOPLIST_FILE = YES; PRODUCT_NAME = "$(TARGET_NAME)"; TARGETED_DEVICE_FAMILY = 1; PRODUCT_BUNDLE_IDENTIFIER = com.yepiphany.camcard.uitests; CURRENT_PROJECT_VERSION = 1; MARKETING_VERSION = 0.1.0; TEST_TARGET_NAME = CamCard; };
+		};
+		00000000000000000000001A = {
+			isa = XCConfigurationList;
+			buildConfigurations = (000000000000000000000021, 000000000000000000000022);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+	};
+	rootObject = 000000000000000000000006;
+}
