@@ -1,60 +1,61 @@
-# CamCard 课程项目
+# CamCard · 名片数字化与联系人管理
 
-用 Swift 和 SwiftUI 黑盒复刻 iOS 名片全能王的「名片数字化与联系人管理」功能切片。项目采用规格驱动开发（SDD），保留原版观察、实现差异、测试及回归证据。
+CamCard 是一款 iOS 名片管理应用，参考「名片全能王」的名片采集、识别和管理流程。使用 Swift、SwiftUI、AVFoundation 和 Apple Vision，支持从拍摄或导入名片，到人工校对、保存、搜索和导出联系人的完整流程。文字识别在设备端运行，名片及其附件保存在应用沙盒。
 
-用户可以从名片夹拍摄或导入名片，校正图像，核对识别字段，保存后搜索、分组、编辑和导出联系人。Apple Vision 在设备端识别文字，应用在本地保存名片及图像。
+## 主要功能
 
-## 当前状态
+- **扫描与导入**支持单张拍摄、连续拍摄、多张拍摄、二维码和相册导入。拍摄页面提供实时预览、快门和补光。
+- **图像校正与识别**支持自动检测边界、透视校正、旋转及手动调整角点。Apple Vision 识别中英文文字，应用分别保留原图、校正图、OCR 原文和字段候选值。
+- **人工校对与管理**支持修改、增加或清空字段，确认后保存。可按姓名、公司、职位、电话或邮箱搜索，并管理分组、收藏、备注和拜访日志。
+- **联系人导出**支持存入系统通讯录和导出 VCF。详情页可打开系统电话、邮件和网站入口。
 
-扫描页支持勾选照片后确认导入、裁剪、OCR、字段校对和保存。默认将名片、原图、校正图、分组及备注保存到应用沙盒。使用 `--demo-cards` 启动时显示一张内存中的合成名片。原版通过 iPhone 镜像观察，复刻应用通过 Xcode 的 iOS 模拟器验收。实时相机预览和拍摄属于实现范围，实际预览和拍摄标记为未验证。
+| 单张拍摄 | 名片详情 | 拜访日志 |
+| --- | --- | --- |
+| <img src="docs/evidence/stage-6-followup/scanner-single.png" width="220" alt="单张拍摄取景页"> | <img src="docs/evidence/stage-6-followup/detail.png" width="220" alt="合成名片的详情页"> | <img src="docs/evidence/stage-6-followup/visit-log.png" width="220" alt="拜访日志表单"> |
 
-- [需求范围](docs/requirements.md)
-- [黑盒规格](docs/spec.md)
-- [用户故事](docs/user-stories.md) · [验收标准](docs/acceptance-criteria.md)
-- [架构](docs/architecture.md) · [数据模型](docs/database.md) · [内部接口](docs/api.md) · [界面规格](docs/ui-spec.md)
-- [第六阶段验收与演示](docs/stage-6-acceptance.md)
-- [阶段计划](docs/plan.md) · [任务清单](docs/tasks.md) · [项目决策](docs/decisions.md)
-- [协作约定](AGENTS.md)
+## 运行与演示
 
-## 开发环境
-
-使用 Xcode 27.2（27B52）和 iPhone 18 Pro 模拟器，运行 iOS 27.2（24B8117）。2026-11-06 已验证模拟器启动、导入测试图片 CC-001 及启动系统「照片」。可用 `xcrun simctl list devices available` 检查模拟设备。打开 `CamCard.xcodeproj`，选择共享的 `CamCard` Scheme 和 iPhone 18 Pro，然后运行。Xcode 27.2 可通过 Device Hub 查看模拟器画面。要手动验证详情，在 Scheme 的 Run 参数中加入 `--demo-cards`，重新运行并点击 Mara Quill。
+本地运行环境为 Xcode 27.2（27B52）、iPhone 18 Pro 模拟器和 iOS 27.2。打开 `CamCard.xcodeproj`，选择共享的 `CamCard` Scheme 和该模拟器，然后运行。以下命令均在仓库根目录执行。使用 `simctl … booted` 时，请只启动用于本项目的模拟器。
 
 ```sh
+# 将演示样本导入已启动的模拟器。
+xcrun simctl addmedia booted tests/fixtures/business-cards/images/CC-001.png
+```
+
+1. 从名片夹进入扫描页，打开「相册」，勾选 CC-001 后点「完成」。
+2. 查看校正图和 OCR 原文，进入裁剪页调整边界，再修改一个联系人字段并保存。
+3. 在详情中查看名片、添加分组或备注。回到名片夹搜索该名片，重启应用后检查数据是否保留。
+4. 在详情中选择「存入通讯录」，或通过「更多 → 导出 VCF」生成文件。VCF 可在 iOS「文件」的「我的 iPhone → CamCard → VCF」中查看。
+
+只演示名片详情时，可在 Scheme 的 Run 参数中加入 `--demo-cards`，启动后打开合成名片 Mara Quill。
+
+## 复现测试
+
+先启动专用模拟器，然后执行以下命令构建、安装并准备 UI 测试所需的图片和权限。
+
+```sh
+camcard_destination='platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2'
+
 xcodebuild -project CamCard.xcodeproj -scheme CamCard \
-  -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
+  -destination "$camcard_destination" \
   -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
 
-# 向已启动的专用测试模拟器导入 UI 回归样本。
+xcrun simctl install booted DerivedData/Build/Products/Debug-iphonesimulator/CamCard.app
 xcrun simctl addmedia booted tests/fixtures/business-cards/images/CC-001.png \
-  tests/fixtures/business-cards/images/CC-016.png tests/fixtures/business-cards/images/CC-017.png \
+  tests/fixtures/business-cards/images/CC-016.png \
+  tests/fixtures/business-cards/images/CC-017.png \
   tests/fixtures/business-cards/images/CC-030.png
-# 已安装 CamCard 时，在专用模拟器中预先授予相册权限。
 xcrun simctl privacy booted grant photos com.yepiphany.camcard
 xcrun simctl privacy booted grant contacts com.yepiphany.camcard
 
 xcodebuild -project CamCard.xcodeproj -scheme CamCard \
-  -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
+  -destination "$camcard_destination" \
   -derivedDataPath DerivedData -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO test
 ```
 
-课程交付使用模拟器演示，通过课程平台提交源码和[课程报告](docs/course-report.md)。无需为演示配置真机签名。
+### OCR 跑分
 
-姓名草稿、二维码识别和备注数据兼容性可在已启动的模拟器单独复测：
-
-```sh
-model_dir=$(mktemp -d)
-xcrun --sdk iphonesimulator swiftc \
-  -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
-  -target "$(uname -m)-apple-ios27.0-simulator" \
-  CamCard/BusinessCard.swift CamCard/CardRepository.swift CamCard/ContactExtraction.swift \
-  CamCard/ScanProcessor.swift scripts/CheckAcceptanceModels.swift -o "$model_dir/check-acceptance"
-xcrun simctl spawn booted "$model_dir/check-acceptance"
-```
-
-## 第四阶段识别跑分
-
-启动用于验收的 iPhone 18 Pro 模拟器，在仓库根目录运行以下命令。输出包含合成样本的 OCR 原文、候选值、差异和字段计分。评分沿用应用的基础识别设置，包含语言兼容回退，且直接调用应用的 Vision 与解析代码。
+跑分沿用应用的基础识别设置，直接调用项目的 Vision 和字段提取代码，输出 OCR 原文、候选值及字段计分。
 
 ```sh
 score_dir=$(mktemp -d)
@@ -67,4 +68,22 @@ xcrun simctl spawn booted "$score_dir/score-recognition" \
   "$PWD/tests/fixtures/business-cards" | tee "$score_dir/recognition.log"
 ```
 
-导出的 VCF 可在 iOS「文件」的「我的 iPhone → CamCard → VCF」中打开。导出完成页也提供系统分享入口。
+### 模型与数据兼容性
+
+此检查覆盖重识别时的姓名草稿合并、合成二维码解码，以及旧备注和附件数据的读写。
+
+```sh
+model_dir=$(mktemp -d)
+xcrun --sdk iphonesimulator swiftc \
+  -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
+  -target "$(uname -m)-apple-ios27.0-simulator" \
+  CamCard/BusinessCard.swift CamCard/CardRepository.swift CamCard/ContactExtraction.swift \
+  CamCard/ScanProcessor.swift scripts/CheckAcceptanceModels.swift -o "$model_dir/check-acceptance"
+xcrun simctl spawn booted "$model_dir/check-acceptance"
+```
+
+## 项目文档
+
+- [需求](docs/requirements.md) · [黑盒规格](docs/spec.md) · [用户故事](docs/user-stories.md)
+- [架构](docs/architecture.md) · [数据模型](docs/database.md) · [内部接口](docs/api.md) · [界面规格](docs/ui-spec.md)
+- [阶段计划](docs/plan.md) · [任务清单](docs/tasks.md) · [技术决策](docs/decisions.md) · [协作约定](AGENTS.md)
