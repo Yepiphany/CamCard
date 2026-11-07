@@ -4,6 +4,7 @@ import SwiftUI
 struct ScannerView: View {
     @Environment(\.dismiss) private var dismiss
 
+    var opensAlbum = false
     let onSave: (ScanResult, ContactFields) throws -> Void
 
     @State private var showsAlbum = false
@@ -74,6 +75,9 @@ struct ScannerView: View {
             if let result {
                 languageEditor(result)
             }
+        }
+        .onAppear {
+            if opensAlbum, result == nil, work == nil { showsAlbum = true }
         }
         .preferredColorScheme(result == nil ? .dark : .light)
         .alert("扫描名片", isPresented: Binding(
@@ -356,27 +360,17 @@ struct ScannerView: View {
     }
 
     private func highlightedCard(_ result: ScanResult) -> some View {
-        Image(decorative: result.corrected, scale: 1)
-            .resizable()
-            .overlay {
-                GeometryReader { proxy in
-                    ForEach(Array(result.recognition.regions.enumerated()), id: \.offset) { _, region in
-                        Rectangle().fill(.orange.opacity(0.20))
-                            .frame(width: region.width * proxy.size.width, height: region.height * proxy.size.height)
-                            .position(x: (region.x + region.width / 2) * proxy.size.width,
-                                      y: (region.y + region.height / 2) * proxy.size.height)
-                    }
-                }
-                .accessibilityHidden(true)
-            }
+        RecognizedCardImage(image: result.corrected, regions: result.recognition.regions)
     }
 
     private func nameEditor(_ result: ScanResult) -> some View {
-        ScanNameEditor(
-            name: fields.name,
-            background: editorBackground,
-            preview: highlightedCard(result)
-        ) { fields.name = $0 }
+        CardNameEditor(
+            details: fields.nameDetails ?? CardName(name: fields.name),
+            preview: NameImagePreview(image: result.corrected, recognition: result.recognition)
+        ) { details in
+            fields.name = details.displayName
+            fields.nameDetails = details
+        }
     }
 
     private func languageEditor(_ result: ScanResult) -> some View {
@@ -565,74 +559,6 @@ struct ScannerView: View {
                     ?? "无法识别这张图片，请重试。"
             }
         }
-    }
-}
-
-private struct ScanNameEditor<Preview: View>: View {
-    @Environment(\.dismiss) private var dismiss
-    @State private var surname: String
-    @State private var givenName: String
-    let background: Color
-    let preview: Preview
-    let onBack: (String?) -> Void
-
-    init(name: String?, background: Color, preview: Preview, onBack: @escaping (String?) -> Void) {
-        let name = name ?? ""
-        if name.range(of: #"^\p{Han}{2,4}$"#, options: .regularExpression) != nil {
-            _surname = State(initialValue: String(name.prefix(1)))
-            _givenName = State(initialValue: String(name.dropFirst()))
-        } else {
-            let parts = name.split(separator: " ")
-            _surname = State(initialValue: parts.count > 1 ? String(parts.last ?? "") : "")
-            _givenName = State(initialValue: parts.count > 1 ? parts.dropLast().joined(separator: " ") : name)
-        }
-        self.background = background
-        self.preview = preview
-        self.onBack = onBack
-    }
-
-    var body: some View {
-        VStack(spacing: 10) {
-            HStack {
-                Button {
-                    let parts = [surname, givenName].map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                    let isChinese = parts.joined().range(of: #"^\p{Han}+$"#, options: .regularExpression) != nil
-                    let name = isChinese ? parts.joined() : parts.reversed().filter { !$0.isEmpty }.joined(separator: " ")
-                    onBack(name.isEmpty ? nil : name)
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left").frame(width: 44, height: 44)
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("返回")
-                .accessibilityIdentifier("scan-name-back")
-                Spacer()
-            }
-            .background(.white)
-            preview.scaledToFill()
-                .frame(height: 100, alignment: .top)
-                .clipped()
-                .accessibilityHidden(true)
-            VStack(spacing: 0) {
-                nameRow("姓", value: $surname, id: "field-surname")
-                Divider().padding(.horizontal, 16)
-                nameRow("名字", value: $givenName, id: "field-given-name")
-            }
-            .background(.white)
-            Spacer()
-        }
-        .background(background.ignoresSafeArea())
-    }
-
-    private func nameRow(_ title: String, value: Binding<String>, id: String) -> some View {
-        HStack(spacing: 12) {
-            Text(title).foregroundStyle(.secondary).frame(width: 80, alignment: .leading)
-            TextField(title, text: value, prompt: Text(""))
-                .autocorrectionDisabled()
-                .accessibilityIdentifier(id)
-        }
-        .padding(.horizontal, 16)
-        .frame(minHeight: 50)
     }
 }
 

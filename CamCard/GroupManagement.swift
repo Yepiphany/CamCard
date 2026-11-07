@@ -335,15 +335,8 @@ private func selectionRow(_ card: BusinessCard, selected: Binding<Set<UUID>>) ->
 
 @MainActor
 func groupCardLink(_ card: BusinessCard, repository: CardRepository, highlight: String = "") -> some View {
-    NavigationLink {
-        CardDetailView(id: card.id, repository: repository)
-    } label: {
-        LibraryCardRow(card: card, image: repository.image(card.correctedImagePath), highlight: highlight)
-            .padding(.horizontal, 16).padding(.vertical, 10).background(.white)
-    }
-    .buttonStyle(.plain)
-    .accessibilityLabel(card.fields.name ?? "未命名名片")
-    .accessibilityIdentifier("linked-card-\(card.id.uuidString)")
+    LibraryCardEntry(card: card, repository: repository, identifier: "linked-card-\(card.id.uuidString)", highlight: highlight)
+        .padding(.horizontal, 16).padding(.vertical, 10).background(.white)
 }
 
 func groupSearch(_ placeholder: String, text: Binding<String>, id: String? = nil) -> some View {

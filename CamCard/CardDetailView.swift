@@ -33,25 +33,40 @@ struct CardDetailView: View {
     private func detail(_ card: BusinessCard) -> some View {
         let fields = card.fields
         return VStack(spacing: 0) {
-            HStack {
-                Button { dismiss() } label: {
-                    Image(systemName: "chevron.left")
-                        .frame(width: 44, height: 44)
-                }
-                .accessibilityLabel("返回")
-                .accessibilityIdentifier("detail-back")
-                Spacer()
+            ZStack {
                 Text("名片详情").font(.headline)
-                Spacer()
-                Image(systemName: "star")
-                Button { more = true } label: {
-                    Image(systemName: "ellipsis").frame(width: 36, height: 44)
-                }
-                .accessibilityLabel("更多")
-                .accessibilityIdentifier("detail-more")
+                HStack {
+                    Button { dismiss() } label: {
+                        Image(systemName: "chevron.left").frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel("返回")
+                    .accessibilityIdentifier("detail-back")
+                    Spacer()
+                    Image(systemName: "star").frame(width: 36)
+                    Button { more = true } label: {
+                        Image(systemName: "ellipsis").frame(width: 38, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .accessibilityLabel("更多")
+                    .accessibilityIdentifier("detail-more")
+                }.padding(.trailing, 4)
             }
+            .frame(height: 46)
             .foregroundStyle(.white)
-            .background(CardPalette.navy.ignoresSafeArea(edges: .top))
+            .background {
+                ZStack {
+                    CardPalette.navy
+                    if let image = repository.image(card.correctedImagePath) {
+                        GeometryReader { geometry in
+                            Image(decorative: image, scale: 1)
+                                .resizable().scaledToFill()
+                                .frame(width: geometry.size.width, height: geometry.size.height, alignment: .top)
+                                .clipped().opacity(0.12)
+                        }
+                    }
+                }.ignoresSafeArea(edges: .top)
+            }
 
             ScrollView {
                 VStack(spacing: 10) {
@@ -61,12 +76,12 @@ struct CardDetailView: View {
                         }
                     HStack {
                         Button { call((fields.mobile + fields.officePhone).first) } label: {
-                            action("电话", icon: "phone.fill", color: .blue)
+                            action("电话", icon: "phone.fill", color: Color(red: 0.29, green: 0.55, blue: 0.97))
                         }.disabled((fields.mobile + fields.officePhone).isEmpty)
                         Button { map(fields.address) } label: {
-                            action("地址", icon: "mappin.circle.fill", color: .orange)
+                            action("地址", icon: "mappin", color: Color(red: 0.98, green: 0.71, blue: 0.05))
                         }.disabled(fields.address == nil)
-                        Button { page = .notes } label: { action("备注", icon: "note.text", color: .green) }
+                        Button { page = .notes } label: { action("备注", icon: "note.text", color: Color(red: 0.59, green: 0.75, blue: 0.12)) }
                         Button { page = .edit } label: { action("编辑", icon: "pencil", color: .teal) }
                     }
                     .buttonStyle(.plain)
@@ -92,6 +107,9 @@ struct CardDetailView: View {
                         }
                         if let company = fields.company {
                             field(company, label: "公司", icon: "building.2.fill")
+                        }
+                        if let company = fields.alternateCompany {
+                            field(company, label: fields.alternateJobTitle ?? "公司", icon: "building.2.fill")
                         }
                         if let website = fields.website {
                             Button {
@@ -135,7 +153,8 @@ struct CardDetailView: View {
             case .image:
                 CardImages(original: repository.image(card.originalImagePath), corrected: repository.image(card.correctedImagePath))
             case .edit:
-                ContactFieldsEditor(fields: card.fields) { fields in
+                ContactFieldsEditor(fields: card.fields, original: repository.image(card.originalImagePath),
+                                    corrected: repository.image(card.correctedImagePath), recognition: card.recognition) { fields, _ in
                     try update { $0.fields = fields }
                 }
             case .groups:
@@ -301,6 +320,7 @@ struct CardDetailView: View {
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.white, in: RoundedRectangle(cornerRadius: 12))
+        .shadow(color: .black.opacity(0.08), radius: 4, y: 3)
         .padding(.horizontal, 10)
         .padding(.top, 7)
         .background(alignment: .top) { CardPalette.navy.frame(height: 80) }

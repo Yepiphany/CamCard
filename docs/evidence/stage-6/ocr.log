@@ -1,0 +1,1660 @@
+CC-001 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "address" : "10 Example Lane",
+    "company" : "Northglass Studio",
+    "email" : [
+      "mara@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Design Director",
+    "mobile" : [
+      "+1202-555-0101"
+    ],
+    "name" : "Mara Quill",
+    "officePhone" : [
+      "+1202-555-0102"
+    ],
+    "website" : "northglass.example"
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Mara Quill\nNorthglass Studio\nDesign Director\nMobile +1202-555-0101\nOffice +1202-555-0102\nmara@example.com\nnorthglass.example\n10 Example Lane",
+  "recognizedAt" : 815730072.91532,
+  "regions" : [
+    {
+      "height" : 0.11777171834309885,
+      "text" : "Mara Quill",
+      "width" : 0.33109543991673046,
+      "x" : 0.08564512218077697,
+      "y" : 0.12711957939770224
+    },
+    {
+      "height" : 0.06400000000000006,
+      "text" : "Northglass Studio",
+      "width" : 0.3146551812772181,
+      "x" : 0.0883620644196128,
+      "y" : 0.2733333326523619
+    },
+    {
+      "height" : 0.060554308573404936,
+      "text" : "Design Director",
+      "width" : 0.27155171930333555,
+      "x" : 0.0883620712080713,
+      "y" : 0.36266666565464334
+    },
+    {
+      "height" : 0.060344568888346384,
+      "text" : "Mobile +1202-555-0101",
+      "width" : 0.3987068772133423,
+      "x" : 0.08836207815930253,
+      "y" : 0.4640000007095595
+    },
+    {
+      "height" : 0.052434458414713614,
+      "text" : "Office +1202-555-0102",
+      "width" : 0.3879310409288859,
+      "x" : 0.08620689319263736,
+      "y" : 0.5505617969883821
+    },
+    {
+      "height" : 0.06912907409667968,
+      "text" : "mara@example.com",
+      "width" : 0.3369082674315659,
+      "x" : 0.08800866941661348,
+      "y" : 0.6299322986351751
+    },
+    {
+      "height" : 0.07004887898763024,
+      "text" : "northglass.example",
+      "width" : 0.33028564920469233,
+      "x" : 0.08592781508630999,
+      "y" : 0.7111026998948176
+    },
+    {
+      "height" : 0.05634456888834627,
+      "text" : "10 Example Lane",
+      "width" : 0.2801724210449967,
+      "x" : 0.08620689279551987,
+      "y" : 0.8013333330452947
+    }
+  ]
+}
+CC-002 | languages=zh-Hans,zh-Hant,en-US | manualCrop=true
+{
+  "candidates" : {
+    "company" : "青屿设计",
+    "email" : [
+      "zhou@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "设计师",
+    "mobile" : [
+
+    ],
+    "name" : "林小舟",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "林小舟\n青屿设计\n设计师\nzhou@example.com",
+  "recognizedAt" : 815730073.971254,
+  "regions" : [
+    {
+      "height" : 0.0839969776570797,
+      "text" : "林小舟",
+      "width" : 0.17672413587570185,
+      "x" : 0.398706897476317,
+      "y" : 0.2870967731473729
+    },
+    {
+      "height" : 0.07325207442045212,
+      "text" : "青屿设计",
+      "width" : 0.20293796062469482,
+      "x" : 0.3899103299270774,
+      "y" : 0.40853525307130023
+    },
+    {
+      "height" : 0.07500000298023224,
+      "text" : "设计师",
+      "width" : 0.14999999602635705,
+      "x" : 0.41666666844515476,
+      "y" : 0.5249999983926964
+    },
+    {
+      "height" : 0.07297345995903015,
+      "text" : "zhou@example.com",
+      "width" : 0.40355296929677326,
+      "x" : 0.28853045326117205,
+      "y" : 0.6337593819696143
+    }
+  ]
+}
+CC-003 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Venn Fabrication",
+    "email" : [
+      "ada@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Engineer",
+    "mobile" : [
+
+    ],
+    "name" : "Ada Venn",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Ada Venn\nVenn Fabrication\nEngineer\nada@example.com",
+  "recognizedAt" : 815730075.278977,
+  "regions" : [
+    {
+      "height" : 0.11387833018361782,
+      "text" : "Ada Venn",
+      "width" : 0.3736827068512509,
+      "x" : 0.08364607752415394,
+      "y" : 0.15219898478192428
+    },
+    {
+      "height" : 0.11544977823893232,
+      "text" : "Venn Fabrication",
+      "width" : 0.5532787380716987,
+      "x" : 0.08333693916189075,
+      "y" : 0.3301624170760873
+    },
+    {
+      "height" : 0.11026989972149881,
+      "text" : "Engineer",
+      "width" : 0.277056855381437,
+      "x" : 0.08770814527927519,
+      "y" : 0.5000201774896227
+    },
+    {
+      "height" : 0.14187277805658038,
+      "text" : "ada@example.com",
+      "width" : 0.5756160101175636,
+      "x" : 0.08506301715021891,
+      "y" : 0.6416014705570248
+    }
+  ]
+}
+CC-004 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "云栈工坊 Cloud Loom",
+    "email" : [
+      "ke@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "工程师 Engineer",
+    "mobile" : [
+
+    ],
+    "name" : "陈可",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "陈可\nKe Chen\n云栈工坊 Cloud Loom\n工程师 Engineer\nke@example.com",
+  "recognizedAt" : 815730076.156408,
+  "regions" : [
+    {
+      "height" : 0.08189655290282327,
+      "text" : "陈可",
+      "width" : 0.25170068497698306,
+      "x" : 0.12244897669918361,
+      "y" : 0.17887930951461273
+    },
+    {
+      "height" : 0.06018970858666206,
+      "text" : "Ke Chen",
+      "width" : 0.3864647106138235,
+      "x" : 0.12808245792406833,
+      "y" : 0.29079190015194434
+    },
+    {
+      "height" : 0.05214126819350817,
+      "text" : "云栈工坊 Cloud Loom",
+      "width" : 0.8027210613823479,
+      "x" : 0.1360544351021113,
+      "y" : 0.44354838625500925
+    },
+    {
+      "height" : 0.05841584701264624,
+      "text" : "工程师 Engineer",
+      "width" : 0.6206722097423867,
+      "x" : 0.1419904630034068,
+      "y" : 0.5775230835856529
+    },
+    {
+      "height" : 0.0677652324826914,
+      "text" : "ke@example.com",
+      "width" : 0.7004867424032843,
+      "x" : 0.1379353831001718,
+      "y" : 0.7080725889869531
+    }
+  ]
+}
+CC-005 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Amber Fold",
+    "email" : [
+      "lena@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Research Lead",
+    "mobile" : [
+
+    ],
+    "name" : "Lena Pike",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Lena Pike\nAmber Fold\nResearch Lead\nlena@example.com",
+  "recognizedAt" : 815730076.884817,
+  "regions" : [
+    {
+      "height" : 0.13345598687930982,
+      "text" : "Lena Pike",
+      "width" : 0.4077906587198712,
+      "x" : 0.12909482012431875,
+      "y" : 0.15195511404423467
+    },
+    {
+      "height" : 0.12919100936578243,
+      "text" : "Amber Fold",
+      "width" : 0.43264492245889385,
+      "x" : 0.12852529681190109,
+      "y" : 0.3256183649288329
+    },
+    {
+      "height" : 0.1205051869762187,
+      "text" : "Research Lead",
+      "width" : 0.46481181830390506,
+      "x" : 0.13074485687475879,
+      "y" : 0.5036261970083732
+    },
+    {
+      "height" : 0.1335708462462133,
+      "text" : "lena@example.com",
+      "width" : 0.6046072784560679,
+      "x" : 0.12653950733018052,
+      "y" : 0.6796680169072942
+    }
+  ]
+}
+CC-006 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Rill Labs",
+    "email" : [
+
+    ],
+    "fax" : [
+      "+1 202-555-0105"
+    ],
+    "mobile" : [
+      "+1 202-555-0104"
+    ],
+    "name" : "Noah Rill",
+    "officePhone" : [
+      "+1 202-555-0103"
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Noah Rill\nRill Labs\nOffice +1 202-555-0103\nMobile +1 202-555-0104\nFax +1 202-555-0105",
+  "recognizedAt" : 815730077.575359,
+  "regions" : [
+    {
+      "height" : 0.1289745340092049,
+      "text" : "Noah Rill",
+      "width" : 0.36336200420673076,
+      "x" : 0.09849141152975475,
+      "y" : 0.16210449264416205
+    },
+    {
+      "height" : 0.0951771051634257,
+      "text" : "Rill Labs",
+      "width" : 0.24846210613117353,
+      "x" : 0.10529480984793865,
+      "y" : 0.33068860039645054
+    },
+    {
+      "height" : 0.1011235963399103,
+      "text" : "Office +1 202-555-0103",
+      "width" : 0.5840517270815122,
+      "x" : 0.10775861833270448,
+      "y" : 0.47565542993330867
+    },
+    {
+      "height" : 0.0977336716477889,
+      "text" : "Mobile +1 202-555-0104",
+      "width" : 0.601293091673951,
+      "x" : 0.1099137981516329,
+      "y" : 0.6029962537602923
+    },
+    {
+      "height" : 0.08569401836163226,
+      "text" : "Fax +1 202-555-0105",
+      "width" : 0.5153891396689249,
+      "x" : 0.10975381741105782,
+      "y" : 0.7376457839353703
+    }
+  ]
+}
+CC-007 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Mica Press",
+    "email" : [
+      "iris@example.com",
+      "studio@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Iris Wren",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Iris Wren\nMica Press\niris @example.com\nstudio@example.com",
+  "recognizedAt" : 815730078.290448,
+  "regions" : [
+    {
+      "height" : 0.0422836082569068,
+      "text" : "Iris Wren",
+      "width" : 0.39010967594562196,
+      "x" : 0.10641574997415745,
+      "y" : 0.34631509239013514
+    },
+    {
+      "height" : 0.03966085185175361,
+      "text" : "Mica Press",
+      "width" : 0.3611570679315246,
+      "x" : 0.12456852456676364,
+      "y" : 0.41443681542373656
+    },
+    {
+      "height" : 0.05245641072591145,
+      "text" : "iris @example.com",
+      "width" : 0.6338501731948096,
+      "x" : 0.10593766961893547,
+      "y" : 0.47455359863270263
+    },
+    {
+      "height" : 0.049228242514789966,
+      "text" : "studio@example.com",
+      "width" : 0.7032582500193377,
+      "x" : 0.12814465301621356,
+      "y" : 0.5375478468688025
+    }
+  ]
+}
+CC-008 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "墨杉工作室",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "顾问",
+    "mobile" : [
+
+    ],
+    "name" : "赵一川",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "赵一川\n墨杉工作室\n顾问",
+  "recognizedAt" : 815730078.995754,
+  "regions" : [
+    {
+      "height" : 0.21263412173003715,
+      "text" : "赵一川",
+      "width" : 0.38793104030133047,
+      "x" : 0.3038793078924383,
+      "y" : 0.20821529539847972
+    },
+    {
+      "height" : 0.10949751337932112,
+      "text" : "墨杉工作室",
+      "width" : 0.34776448374864244,
+      "x" : 0.32924943666152773,
+      "y" : 0.5006894027485972
+    },
+    {
+      "height" : 0.09667822321818842,
+      "text" : "顾问",
+      "width" : 0.11853447984933474,
+      "x" : 0.43965517400935117,
+      "y" : 0.7025495775785251
+    }
+  ]
+}
+CC-009 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Lee Consulting",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Consultant",
+    "mobile" : [
+
+    ],
+    "name" : "Jordan Lee",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Jordan Lee\nLee Consulting\nConsultant",
+  "recognizedAt" : 815730079.683656,
+  "regions" : [
+    {
+      "height" : 0.14847929279009497,
+      "text" : "Jordan Lee",
+      "width" : 0.5250144616529415,
+      "x" : 0.255903133365128,
+      "y" : 0.21118380464663267
+    },
+    {
+      "height" : 0.16866054137547803,
+      "text" : "Lee Consulting",
+      "width" : 0.6226386375368287,
+      "x" : 0.20522279576405333,
+      "y" : 0.4473825323683842
+    },
+    {
+      "height" : 0.10984786351521802,
+      "text" : "Consultant",
+      "width" : 0.3787182862460153,
+      "x" : 0.32036584370563276,
+      "y" : 0.6892073990166064
+    }
+  ]
+}
+CC-010 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Plover Works",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Avery Vale",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Avery Vale\nProduct: Apple\nCompany: Plover Works",
+  "recognizedAt" : 815730080.345321,
+  "regions" : [
+    {
+      "height" : 0.14017481718961222,
+      "text" : "Avery Vale",
+      "width" : 0.39248906082349777,
+      "x" : 0.4050485729195744,
+      "y" : 0.29772868331287494
+    },
+    {
+      "height" : 0.09669211195928751,
+      "text" : "Product: Apple",
+      "width" : 0.359913794608928,
+      "x" : 0.4073275853723756,
+      "y" : 0.48982188530765225
+    },
+    {
+      "height" : 0.09887061470944158,
+      "text" : "Company: Plover Works",
+      "width" : 0.5457578558096388,
+      "x" : 0.40710220091142796,
+      "y" : 0.6283235821397466
+    }
+  ]
+}
+CC-011 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "松岚工作室",
+    "email" : [
+      "xing@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Field Engineer",
+    "mobile" : [
+
+    ],
+    "name" : "陈星",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "陈星\nField Engineer\n松岚工作室\nxing@example.com",
+  "recognizedAt" : 815730081.020849,
+  "regions" : [
+    {
+      "height" : 0.1407103825136612,
+      "text" : "陈星",
+      "width" : 0.18318965353327005,
+      "x" : 0.4245689659930119,
+      "y" : 0.1844262277008557
+    },
+    {
+      "height" : 0.12479365197687198,
+      "text" : "Field Engineer",
+      "width" : 0.43115410255123154,
+      "x" : 0.3004795638366732,
+      "y" : 0.382094818803131
+    },
+    {
+      "height" : 0.10188679095825859,
+      "text" : "松岚工作室",
+      "width" : 0.31681034646672995,
+      "x" : 0.3599137921398426,
+      "y" : 0.5584905667345826
+    },
+    {
+      "height" : 0.1057480150233201,
+      "text" : "xing@example.com",
+      "width" : 0.5301724252671096,
+      "x" : 0.24353447687473653,
+      "y" : 0.7207547150202716
+    }
+  ]
+}
+CC-012 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Ochre Circle",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Illustrator",
+    "mobile" : [
+
+    ],
+    "name" : "Milo Finch",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Milo Finch\nOchre Circle\nIllustrator",
+  "recognizedAt" : 815730081.753688,
+  "regions" : [
+    {
+      "height" : 0.16857166504592036,
+      "text" : "Milo Finch",
+      "width" : 0.5117725118001302,
+      "x" : 0.2559682999529836,
+      "y" : 0.24207889883432387
+    },
+    {
+      "height" : 0.1095505617977528,
+      "text" : "Ochre Circle",
+      "width" : 0.4375,
+      "x" : 0.2952586203164911,
+      "y" : 0.47050561655686574
+    },
+    {
+      "height" : 0.09845785612470648,
+      "text" : "Illustrator",
+      "width" : 0.36923502604166664,
+      "x" : 0.32508945769095127,
+      "y" : 0.6605176483296592
+    }
+  ]
+}
+CC-013 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Cedar Pixel",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Photographer",
+    "mobile" : [
+
+    ],
+    "name" : "Nina Ash",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Nina Ash\nCedar Pixel\nPhotographer",
+  "recognizedAt" : 815730082.515354,
+  "regions" : [
+    {
+      "height" : 0.159458547178841,
+      "text" : "Nina Ash",
+      "width" : 0.44669476863995916,
+      "x" : 0.12260585775939639,
+      "y" : 0.1827050451952199
+    },
+    {
+      "height" : 0.11111111195376566,
+      "text" : "Cedar Pixel",
+      "width" : 0.4267241226164566,
+      "x" : 0.12715518114866825,
+      "y" : 0.45679012234101846
+    },
+    {
+      "height" : 0.1362156270749526,
+      "text" : "Photographer",
+      "width" : 0.4935344926037065,
+      "x" : 0.13146551219127345,
+      "y" : 0.6460905373770559
+    }
+  ]
+}
+CC-014 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Glass Kite",
+    "email" : [
+      "eli@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Eli Moss",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Eli Moss\nGlass Kite\neli@example.com",
+  "recognizedAt" : 815730083.867061,
+  "regions" : [
+    {
+      "height" : 0.12573088933286714,
+      "text" : "Eli Moss",
+      "width" : 0.3857758795834778,
+      "x" : 0.09267240493347663,
+      "y" : 0.22033898152322562
+    },
+    {
+      "height" : 0.1263554585552632,
+      "text" : "Glass Kite",
+      "width" : 0.432565167938952,
+      "x" : 0.09401638667574025,
+      "y" : 0.42193067592657363
+    },
+    {
+      "height" : 0.14956331877729256,
+      "text" : "eli@example.com",
+      "width" : 0.7004310301041305,
+      "x" : 0.09698276144826623,
+      "y" : 0.6233624495562633
+    }
+  ]
+}
+CC-015 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "桥影工房",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "编辑",
+    "mobile" : [
+
+    ],
+    "name" : "贺青",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "贺青\n桥影工房\n编辑",
+  "recognizedAt" : 815730085.094347,
+  "regions" : [
+    {
+      "height" : 0.192027006199751,
+      "text" : "贺青",
+      "width" : 0.22629310971214656,
+      "x" : 0.4051724105506106,
+      "y" : 0.1915708779697216
+    },
+    {
+      "height" : 0.1319332930146071,
+      "text" : "桥影工房",
+      "width" : 0.30294627235049293,
+      "x" : 0.3679070846036678,
+      "y" : 0.48317365306070725
+    },
+    {
+      "height" : 0.11544426408394304,
+      "text" : "编辑",
+      "width" : 0.14224137578691753,
+      "x" : 0.45258620854619636,
+      "y" : 0.6891534378205219
+    }
+  ]
+}
+CC-016 | languages=zh-Hans,zh-Hant,en-US | manualCrop=true
+{
+  "candidates" : {
+    "company" : "Paper Nenidran",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Planner",
+    "mobile" : [
+
+    ],
+    "name" : "Ren Sol",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Ren Sol\nPaper Nenidran\nPlanner",
+  "recognizedAt" : 815730085.897885,
+  "regions" : [
+    {
+      "height" : 0.13808389008045197,
+      "text" : "Ren Sol",
+      "width" : 0.2970785101254781,
+      "x" : 0.360239410952131,
+      "y" : 0.22210327678407216
+    },
+    {
+      "height" : 0.25368940830230713,
+      "text" : "Paper Nenidran",
+      "width" : 0.5974056323369344,
+      "x" : 0.22798793365424577,
+      "y" : 0.3071226688544706
+    },
+    {
+      "height" : 0.2131779044866562,
+      "text" : "Planner",
+      "width" : 0.30887424945831293,
+      "x" : 0.45981237280418136,
+      "y" : 0.4403560179179765
+    }
+  ]
+}
+DIFF CC-016 company: ["Paper Meridian"] → ["Paper Nenidran"]
+CC-017 | languages=zh-Hans,zh-Hant,en-US | manualCrop=true
+{
+  "candidates" : {
+    "company" : "Glen Logic",
+    "email" : [
+      "dara@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Dara Glen",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Dara Glen\nGlen Logic\ndara@example.com",
+  "recognizedAt" : 815730086.631385,
+  "regions" : [
+    {
+      "height" : 0.0927000567317009,
+      "text" : "Dara Glen",
+      "width" : 0.36109054088592524,
+      "x" : 0.32254806076951165,
+      "y" : 0.35649703251649223
+    },
+    {
+      "height" : 0.09287213534116745,
+      "text" : "Glen Logic",
+      "width" : 0.2657287319501241,
+      "x" : 0.37369345615121413,
+      "y" : 0.5004970699772651
+    },
+    {
+      "height" : 0.10285573825240135,
+      "text" : "dara@example.com",
+      "width" : 0.45115896066029876,
+      "x" : 0.28514963092789974,
+      "y" : 0.6098654953917373
+    }
+  ]
+}
+CC-018 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Juniper Metric",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Analyst",
+    "mobile" : [
+
+    ],
+    "name" : "Tess Vale",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Tess Vale\nJuniper Metric\nAnalyst",
+  "recognizedAt" : 815730087.379164,
+  "regions" : [
+    {
+      "height" : 0.13706787584861346,
+      "text" : "Tess Vale",
+      "width" : 0.3656671043333968,
+      "x" : 0.08982300397703916,
+      "y" : 0.21787497761954444
+    },
+    {
+      "height" : 0.1493133458469813,
+      "text" : "Juniper Metric",
+      "width" : 0.5357222394245427,
+      "x" : 0.09197466262752238,
+      "y" : 0.42560517013133603
+    },
+    {
+      "height" : 0.13829263141405146,
+      "text" : "Analyst",
+      "width" : 0.26619922668953255,
+      "x" : 0.09522195323239915,
+      "y" : 0.5999976544041167
+    }
+  ]
+}
+CC-019 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Sable Type",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Art Director",
+    "mobile" : [
+
+    ],
+    "name" : "Oren Flint",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Oren Flint\nSable Type\nArt Director",
+  "recognizedAt" : 815730088.17271,
+  "regions" : [
+    {
+      "height" : 0.10462641428752129,
+      "text" : "Oren Flint",
+      "width" : 0.8422218545362234,
+      "x" : 0.09197053945635224,
+      "y" : 0.3836822905988462
+    },
+    {
+      "height" : 0.07841580172619189,
+      "text" : "Sable Type",
+      "width" : 0.5998444089206523,
+      "x" : 0.21672333010689368,
+      "y" : 0.5107846979625499
+    },
+    {
+      "height" : 0.05503477820430891,
+      "text" : "Art Director",
+      "width" : 0.5927093263013926,
+      "x" : 0.2188521937479079,
+      "y" : 0.6105851886899906
+    }
+  ]
+}
+CC-020 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "白舟造物",
+    "email" : [
+      "fang@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "方可",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "方可\n白舟造物\nfang@example.com",
+  "recognizedAt" : 815730089.036587,
+  "regions" : [
+    {
+      "height" : 0.06555824220458606,
+      "text" : "方可",
+      "width" : 0.21227375708461127,
+      "x" : 0.3994865946266004,
+      "y" : 0.3334471592079089
+    },
+    {
+      "height" : 0.06555299773742773,
+      "text" : "白舟造物",
+      "width" : 0.36154518835740634,
+      "x" : 0.34135834639414286,
+      "y" : 0.4387457614492949
+    },
+    {
+      "height" : 0.061090060007145786,
+      "text" : "fang@example.com",
+      "width" : 0.6706992637573566,
+      "x" : 0.2069006479136567,
+      "y" : 0.5402485880935145
+    }
+  ]
+}
+CC-021 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Fable Foundry",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Editor",
+    "mobile" : [
+
+    ],
+    "name" : "Ada Reed",
+    "officePhone" : [
+
+    ],
+    "website" : "fable.example"
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Ada Reed\nFable Foundry\nEditor\nfable.example",
+  "recognizedAt" : 815730089.794491,
+  "regions" : [
+    {
+      "height" : 0.12242795225985326,
+      "text" : "Ada Reed",
+      "width" : 0.35804159637845223,
+      "x" : 0.32744471890779947,
+      "y" : 0.6878496942105171
+    },
+    {
+      "height" : 0.11701861640758937,
+      "text" : "Fable Foundry",
+      "width" : 0.4535926588980676,
+      "x" : 0.2772682412063267,
+      "y" : 0.49860824201674014
+    },
+    {
+      "height" : 0.09762427693887843,
+      "text" : "Editor",
+      "width" : 0.19752970932203862,
+      "x" : 0.4022742998202129,
+      "y" : 0.346446943239495
+    },
+    {
+      "height" : 0.12930069540504197,
+      "text" : "fable.example",
+      "width" : 0.43637365179732335,
+      "x" : 0.28398363481045386,
+      "y" : 0.15822303454093078
+    }
+  ]
+}
+CC-022 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Fern Signal",
+    "email" : [
+      "leo@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Leo Fern",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Leo Fern\nFern Signal\nleo@example.com",
+  "recognizedAt" : 815730090.68751,
+  "regions" : [
+    {
+      "height" : 0.27586206812767455,
+      "text" : "Leo Fern",
+      "width" : 0.08771934509277346,
+      "x" : 0.6175438385397121,
+      "y" : 0.34913793046818253
+    },
+    {
+      "height" : 0.3377995096194517,
+      "text" : "Fern Signal",
+      "width" : 0.1177024395434888,
+      "x" : 0.4597172081722867,
+      "y" : 0.3202809927404833
+    },
+    {
+      "height" : 0.5137819423797024,
+      "text" : "leo@example.com",
+      "width" : 0.11329638988940749,
+      "x" : 0.3141570685325168,
+      "y" : 0.2279981399242489
+    }
+  ]
+}
+CC-023 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Blue Hour Studio",
+    "email" : [
+      "mira@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Mira Lake",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Mira Lake\nBlue Hour Studio\nmira@example.com",
+  "recognizedAt" : 815730091.468759,
+  "regions" : [
+    {
+      "height" : 0.09848964327857601,
+      "text" : "Mira Lake",
+      "width" : 0.29399139059465484,
+      "x" : 0.07931714405996224,
+      "y" : 0.2562387146004903
+    },
+    {
+      "height" : 0.10351438522338863,
+      "text" : "Blue Hour Studio",
+      "width" : 0.4967439295881885,
+      "x" : 0.07490663904704248,
+      "y" : 0.4333619069821768
+    },
+    {
+      "height" : 0.11554488681611563,
+      "text" : "mira@example.com",
+      "width" : 0.550205510888396,
+      "x" : 0.0751242742621439,
+      "y" : 0.6042359648155587
+    }
+  ]
+}
+CC-024 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Frost Field",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "Writer",
+    "mobile" : [
+
+    ],
+    "name" : "Rae Frost",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Rae Frost\nFrost Field\nWriter",
+  "recognizedAt" : 815730092.265689,
+  "regions" : [
+    {
+      "height" : 0.16814259120396202,
+      "text" : "Rae Frost",
+      "width" : 0.4669310001563525,
+      "x" : 0.2708762350593073,
+      "y" : 0.19549974738151477
+    },
+    {
+      "height" : 0.16392963273184635,
+      "text" : "Frost Field",
+      "width" : 0.4876145891004347,
+      "x" : 0.2605078148731547,
+      "y" : 0.4172753957118267
+    },
+    {
+      "height" : 0.14066233805247708,
+      "text" : "Writer",
+      "width" : 0.2948463620163324,
+      "x" : 0.3568030254985427,
+      "y" : 0.6221747234702729
+    }
+  ]
+}
+CC-025 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "email" : [
+      "yu@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "余舟",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "余舟\nYu Zhou\n霜桥 Frost Bridge\nyu@example.com",
+  "recognizedAt" : 815730092.983018,
+  "regions" : [
+    {
+      "height" : 0.13114753702126913,
+      "text" : "余舟",
+      "width" : 0.14870689921296404,
+      "x" : 0.4568965500415065,
+      "y" : 0.20081967367515785
+    },
+    {
+      "height" : 0.07786885306198077,
+      "text" : "Yu Zhou",
+      "width" : 0.1939655149603166,
+      "x" : 0.45689655270687984,
+      "y" : 0.3770491799568608
+    },
+    {
+      "height" : 0.10254119578800247,
+      "text" : "霜桥 Frost Bridge",
+      "width" : 0.35315770496522764,
+      "x" : 0.4580477010132182,
+      "y" : 0.5230383120400942
+    },
+    {
+      "height" : 0.07786885306198077,
+      "text" : "yu@example.com",
+      "width" : 0.33620688818782735,
+      "x" : 0.45689655576334115,
+      "y" : 0.6803278685004126
+    }
+  ]
+}
+DIFF CC-025 company: ["霜桥 Frost Bridge"] → []
+CC-026 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "Devon Elm",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Devon Elm\nTern Audio\n+1202-555-0106\n+1202-555-0107",
+  "recognizedAt" : 815730093.873565,
+  "regions" : [
+    {
+      "height" : 0.1355323886871338,
+      "text" : "Devon Elm",
+      "width" : 0.44228958394486084,
+      "x" : 0.12260520790043447,
+      "y" : 0.1654427608380803
+    },
+    {
+      "height" : 0.14834899425506598,
+      "text" : "Tern Audio",
+      "width" : 0.4391561960209312,
+      "x" : 0.11986155789929216,
+      "y" : 0.341870276171125
+    },
+    {
+      "height" : 0.12313432693481441,
+      "text" : "+1202-555-0106",
+      "width" : 0.6271551937037121,
+      "x" : 0.11422412717947927,
+      "y" : 0.544776120092536
+    },
+    {
+      "height" : 0.11250000000000004,
+      "text" : "+1202-555-0107",
+      "width" : 0.6249999999999999,
+      "x" : 0.11637930807360748,
+      "y" : 0.71249999964063
+    }
+  ]
+}
+DIFF CC-026 company: ["Tern Audio"] → []
+CC-027 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Holt Robotics",
+    "email" : [
+      "sara@example.com",
+      "lab@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+      "+1 202-555-0108"
+    ],
+    "name" : "Sara Holt",
+    "officePhone" : [
+      "+1 202-555-0109"
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Sara Holt\nHolt Robotics\nMobile +1 202-555-0108\nOffice +1 202-555-0109\nsara@example.com\nlab@example.com",
+  "recognizedAt" : 815730094.674205,
+  "regions" : [
+    {
+      "height" : 0.13461907985991073,
+      "text" : "Sara Holt",
+      "width" : 0.2897418068523632,
+      "x" : 0.07057623210889903,
+      "y" : 0.370877292526153
+    },
+    {
+      "height" : 0.1027278689156591,
+      "text" : "Holt Robotics",
+      "width" : 0.3004229591961133,
+      "x" : 0.06857596699869531,
+      "y" : 0.5431752208053762
+    },
+    {
+      "height" : 0.08738938053097345,
+      "text" : "Mobile +1 202-555-0108",
+      "width" : 0.4396551585855371,
+      "x" : 0.4762931103786256,
+      "y" : 0.2676991143859321
+    },
+    {
+      "height" : 0.08344555745082627,
+      "text" : "Office +1 202-555-0109",
+      "width" : 0.4159482938388018,
+      "x" : 0.4762930944681985,
+      "y" : 0.4021739115910914
+    },
+    {
+      "height" : 0.09794642018005906,
+      "text" : "sara@example.com",
+      "width" : 0.34340215575209426,
+      "x" : 0.4715973575423574,
+      "y" : 0.5284592394376081
+    },
+    {
+      "height" : 0.09928618068188699,
+      "text" : "lab@example.com",
+      "width" : 0.33347666435893353,
+      "x" : 0.45826166754586495,
+      "y" : 0.6356715948684497
+    }
+  ]
+}
+CC-028 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "Moss Atelier",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "Moss Atelier",
+  "recognizedAt" : 815730095.286837,
+  "regions" : [
+    {
+      "height" : 0.17123487806811777,
+      "text" : "Moss Atelier",
+      "width" : 0.4946163827401621,
+      "x" : 0.2764427628246539,
+      "y" : 0.40842660142624754
+    }
+  ]
+}
+CC-029 | languages=zh-Hans,zh-Hant,en-US | manualCrop=true
+{
+  "candidates" : {
+    "company" : "信标工作室 Beacon Studio",
+    "email" : [
+      "wen@example.com"
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "name" : "温宁",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "温宁\nWen Ning\n信标工作室 Beacon Studio\nwen@example.com",
+  "recognizedAt" : 815730096.396142,
+  "regions" : [
+    {
+      "height" : 0.1639068455985897,
+      "text" : "温宁",
+      "width" : 0.3574597269131992,
+      "x" : 0.050685763192347896,
+      "y" : 0.3123651901196789
+    },
+    {
+      "height" : 0.14018326437934325,
+      "text" : "Wen Ning",
+      "width" : 0.4074177891290429,
+      "x" : 0.03302702770187421,
+      "y" : 0.4364952680926648
+    },
+    {
+      "height" : 0.1771188177456514,
+      "text" : "信标工作室 Beacon Studio",
+      "width" : 0.797623495590182,
+      "x" : 0.003624988782897229,
+      "y" : 0.5682614867930451
+    },
+    {
+      "height" : 0.1298727857473806,
+      "text" : "wen@example.com",
+      "width" : 0.6176966883200966,
+      "x" : -0.009357354206063893,
+      "y" : 0.6766743618171366
+    }
+  ]
+}
+CC-030 | languages=zh-Hans,zh-Hant,en-US | manualCrop=true
+{
+  "candidates" : {
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "mobile" : [
+
+    ],
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "",
+  "recognizedAt" : 815730096.753024,
+  "regions" : [
+
+  ]
+}
+CC-031 | languages=zh-Hans,zh-Hant,en-US | manualCrop=false
+{
+  "candidates" : {
+    "company" : "雲杉設計",
+    "email" : [
+
+    ],
+    "fax" : [
+
+    ],
+    "jobTitle" : "設計顧問",
+    "mobile" : [
+
+    ],
+    "name" : "鄭小雨",
+    "officePhone" : [
+
+    ]
+  },
+  "languages" : [
+    "zh-Hans",
+    "zh-Hant",
+    "en-US"
+  ],
+  "rawText" : "鄭小雨\n雲杉設計\n設計顧問",
+  "recognizedAt" : 815730097.717629,
+  "regions" : [
+    {
+      "height" : 0.18215613566653832,
+      "text" : "鄭小雨",
+      "width" : 0.3448275741900744,
+      "x" : 0.33836207424797543,
+      "y" : 0.1561338275981533
+    },
+    {
+      "height" : 0.17100055318483165,
+      "text" : "雲杉設計",
+      "width" : 0.40783489781141674,
+      "x" : 0.305780826844747,
+      "y" : 0.42193466759253107
+    },
+    {
+      "height" : 0.17407155104086436,
+      "text" : "設計顧問",
+      "width" : 0.3990777717328966,
+      "x" : 0.30585016265238973,
+      "y" : 0.6655724739562299
+    }
+  ]
+}
+SCORE name 28/28 0/1
+SCORE company 26/29 0/0
+SCORE jobTitle 16/16 0/13
+SCORE mobile 3/3 0/26
+SCORE officePhone 3/3 0/26
+SCORE email 15/15 0/14
+SCORE website 2/2 0/27
+SCORE address 1/1 0/28

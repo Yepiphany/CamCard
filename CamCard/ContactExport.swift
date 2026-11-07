@@ -39,13 +39,23 @@ enum ContactExport {
     }
 
     private static var keys: [CNKeyDescriptor] {
-        [CNContactGivenNameKey, CNContactOrganizationNameKey, CNContactJobTitleKey,
+        [CNContactGivenNameKey, CNContactFamilyNameKey, CNContactMiddleNameKey, CNContactNamePrefixKey,
+         CNContactNameSuffixKey, CNContactNicknameKey, CNContactPhoneticGivenNameKey, CNContactPhoneticFamilyNameKey,
+         CNContactOrganizationNameKey, CNContactJobTitleKey, CNContactDepartmentNameKey,
          CNContactPhoneNumbersKey, CNContactEmailAddressesKey, CNContactUrlAddressesKey,
          CNContactPostalAddressesKey].map { $0 as CNKeyDescriptor }
     }
 
     private static func apply(_ fields: ContactFields, to contact: CNMutableContact) {
-        contact.givenName = fields.name ?? ""
+        contact.givenName = fields.nameDetails?.givenName ?? fields.name ?? ""
+        contact.familyName = fields.nameDetails?.surname ?? ""
+        contact.middleName = fields.nameDetails?.middleName ?? ""
+        contact.namePrefix = fields.nameDetails?.prefix ?? ""
+        contact.nameSuffix = fields.nameDetails?.suffix ?? ""
+        contact.nickname = fields.nameDetails?.nickname ?? ""
+        contact.phoneticGivenName = fields.nameDetails?.phoneticGivenName ?? ""
+        contact.phoneticFamilyName = fields.nameDetails?.phoneticSurname ?? ""
+        contact.departmentName = fields.department ?? ""
         contact.organizationName = fields.company ?? ""
         contact.jobTitle = fields.jobTitle ?? ""
         contact.phoneNumbers = phones(fields.mobile, label: CNLabelPhoneNumberMobile)

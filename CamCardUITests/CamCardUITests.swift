@@ -31,6 +31,27 @@ final class CamCardUITests: XCTestCase {
         XCTAssertTrue(app.buttons["scan-photo-picker"].exists)
     }
 
+    func testPhotoAlbumAccessAndCancel() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--empty-library"]
+        app.launch()
+        app.buttons["open-scanner"].tap()
+        app.buttons["scan-photo-picker"].tap()
+
+        let unavailable = app.staticTexts["无法访问照片"]
+        if unavailable.waitForExistence(timeout: 3) {
+            XCTAssertTrue(app.buttons["前往设置"].exists)
+            XCTAssertFalse(app.buttons.matching(identifier: "album-photo").firstMatch.exists)
+            attachScreenshot(app, named: "相册访问被拒")
+        } else {
+            XCTAssertTrue(app.buttons.matching(identifier: "album-photo").firstMatch.waitForExistence(timeout: 5))
+        }
+        XCTAssertFalse(app.buttons["album-done"].isEnabled)
+        app.buttons["album-cancel"].tap()
+        app.buttons["close-scanner"].tap()
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("0张"))
+    }
+
     func testPhotoImportAndManualCrop() {
         let app = XCUIApplication()
         app.launchArguments = ["--test-library", "--reset-test-library"]
@@ -157,7 +178,26 @@ final class CamCardUITests: XCTestCase {
         search.tap()
         search.typeText("northglass")
         XCTAssertTrue(app.staticTexts["名片夹名片 (1)"].waitForExistence(timeout: 5), app.debugDescription)
-        app.navigationBars["搜索"].buttons.firstMatch.tap()
+        app.buttons["search-back"].tap()
+
+        app.buttons["library-search"].tap()
+        XCTAssertTrue(app.staticTexts["最近搜索"].exists)
+        app.buttons["northglass"].tap()
+        XCTAssertTrue(app.staticTexts["名片夹名片 (1)"].exists)
+        for query in ["Mara", "Director", "202-555", "mara@example.com", "no-match"] {
+            app.buttons["清空搜索"].tap()
+            search.tap()
+            search.typeText(query)
+            if query == "no-match" {
+                XCTAssertTrue(app.staticTexts["未找到「no-match」"].exists)
+            } else {
+                XCTAssertTrue(app.staticTexts["名片夹名片 (1)"].exists)
+            }
+        }
+        app.buttons["清空搜索"].tap()
+        app.buttons["清空最近搜索"].tap()
+        XCTAssertFalse(app.staticTexts["最近搜索"].exists)
+        app.buttons["search-back"].tap()
 
         app.buttons["library-groups"].tap()
         app.buttons["新建分组"].tap()
@@ -204,21 +244,85 @@ final class CamCardUITests: XCTestCase {
         XCTAssertEqual(email.value as? String, "mara@example.com")
 
         app.buttons["编辑"].tap()
-        let name = app.descendants(matching: .any)["edit-姓名"]
+        let name = app.buttons["edit-name"]
         XCTAssertTrue(name.waitForExistence(timeout: 5))
-        name.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.5)).tap()
-        name.typeText(" Edited")
+        name.tap()
+        app.buttons["显示隐藏项"].tap()
+        attachScreenshot(app, named: "姓名隐藏项")
+        XCTAssertTrue(app.textFields["name-nickname"].exists)
+        let givenName = app.textFields["field-given-name"]
+        givenName.tap()
+        givenName.typeText(" Edited")
+        app.buttons["scan-name-back"].tap()
         app.buttons["取消"].tap()
         XCTAssertEqual(app.staticTexts["detail-name"].label, "Mara Quill")
 
         app.buttons["编辑"].tap()
-        name.coordinate(withNormalizedOffset: CGVector(dx: 0.96, dy: 0.5)).tap()
-        name.typeText(" Edited")
+        name.tap()
+        givenName.tap()
+        givenName.typeText(" Edited")
+        app.buttons["scan-name-back"].tap()
+        let company = app.descendants(matching: .any)["edit-公司"]
+        company.coordinate(withNormalizedOffset: CGVector(dx: 0.98, dy: 0.5)).tap()
+        company.typeText(" Updated")
         app.buttons["保存"].tap()
-        XCTAssertEqual(app.staticTexts["detail-name"].label, "Mara Quill Edited")
+        XCTAssertEqual(app.staticTexts["detail-name"].label, "Mara Edited Quill")
+        XCTAssertTrue(app.staticTexts["Northglass Studio Updated"].exists)
 
         app.buttons["detail-back"].tap()
         XCTAssertTrue(row.waitForExistence(timeout: 5))
+    }
+
+    func testLibraryQuickActionsAndManualEntry() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--demo-cards"]
+        app.launch()
+
+        app.buttons["card-more-00000000-0000-0000-0000-000000000001"].tap()
+        XCTAssertTrue(app.staticTexts["更多操作"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["打电话"].exists)
+        XCTAssertTrue(app.buttons["分享TA的名片"].exists)
+        attachScreenshot(app, named: "名片夹更多操作")
+        app.buttons["管理分组"].tap()
+        XCTAssertTrue(app.navigationBars["添加到分组"].waitForExistence(timeout: 5))
+        app.buttons["完成"].tap()
+
+        app.buttons["card-more-00000000-0000-0000-0000-000000000001"].tap()
+        app.buttons["分享TA的名片"].tap()
+        XCTAssertTrue(app.staticTexts["已导出 VCF"].waitForExistence(timeout: 5))
+        app.buttons["完成"].tap()
+
+        app.buttons["library-add"].tap()
+        app.buttons["添加名片"].tap()
+        app.buttons["从相册导入"].tap()
+        XCTAssertTrue(app.buttons["album-done"].waitForExistence(timeout: 8))
+        app.buttons["album-cancel"].tap()
+        app.buttons["close-scanner"].tap()
+
+        app.buttons["library-add"].tap()
+        app.buttons["添加名片"].tap()
+        XCTAssertTrue(app.staticTexts["添加名片"].waitForExistence(timeout: 5))
+        app.buttons["手动输入名片"].tap()
+        let save = app.buttons["保存"]
+        XCTAssertTrue(save.waitForExistence(timeout: 5))
+        XCTAssertFalse(save.isEnabled)
+        app.buttons["添加名片图像"].tap()
+        let photo = app.buttons.matching(identifier: "album-photo").firstMatch
+        XCTAssertTrue(photo.waitForExistence(timeout: 8))
+        photo.tap()
+        app.buttons["album-done"].tap()
+        XCTAssertTrue(app.buttons["更换名片图像"].waitForExistence(timeout: 5))
+        XCTAssertFalse(save.isEnabled)
+        attachScreenshot(app, named: "手动输入名片")
+        app.buttons["edit-name"].tap()
+        let givenName = app.textFields["field-given-name"]
+        givenName.tap()
+        givenName.typeText("Test Card")
+        app.buttons["scan-name-back"].tap()
+        save.tap()
+        XCTAssertEqual(app.staticTexts["detail-name"].label, "Test Card")
+        app.buttons["detail-back"].tap()
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("2张"))
     }
 
     func testContactsExport() {
