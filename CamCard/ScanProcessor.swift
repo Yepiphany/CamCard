@@ -75,7 +75,7 @@ enum ScanProcessor {
 
     static func recognize(original: CGImage, source: CGImage, boundary: CardBoundary? = nil, accurate: Bool = true,
                           languages: [String] = ["en-US", "zh-Hans", "zh-Hant"]) throws -> ScanResult {
-        let detected = try boundary ?? detect(in: source)
+        let detected = try boundary ?? boundaries(in: source).first
         let selected = detected ?? .wholeImage
         let corrected = detected == nil ? source : try crop(source, to: selected)
 
@@ -109,20 +109,35 @@ enum ScanProcessor {
                           corrected: corrected, recognition: recognition, needsManualCrop: detected == nil)
     }
 
-    private static func detect(in image: CGImage) throws -> CardBoundary? {
+    static func qrPayload(in data: Data) throws -> String? {
+        let request = VNDetectBarcodesRequest()
+        request.symbologies = [.qr]
+        let image = try decode(data)
+        if (try? VNImageRequestHandler(cgImage: image).perform([request])) != nil,
+           let payload = request.results?.compactMap(\.payloadStringValue).first {
+            return payload
+        }
+        // The simulator can lack the inference backend used by the Vision barcode request.
+        let detector = CIDetector(ofType: CIDetectorTypeQRCode, context: context,
+                                  options: [CIDetectorAccuracy: CIDetectorAccuracyHigh])
+        return detector?.features(in: CIImage(cgImage: image))
+            .compactMap { ($0 as? CIQRCodeFeature)?.messageString }.first
+    }
+
+    static func boundaries(in image: CGImage) throws -> [CardBoundary] {
         let request = VNDetectRectanglesRequest()
         request.minimumConfidence = 0.6
         request.minimumAspectRatio = 0.32
         request.minimumSize = 0.22
         request.maximumObservations = 4
         try VNImageRequestHandler(cgImage: image).perform([request])
-        return request.results?.sorted {
+        return (request.results ?? []).sorted {
             $0.boundingBox.width * $0.boundingBox.height > $1.boundingBox.width * $1.boundingBox.height
-        }.lazy.map { rectangle in
+        }.map { rectangle in
             CardBoundary(corners: [
                 rectangle.topLeft, rectangle.topRight, rectangle.bottomRight, rectangle.bottomLeft
             ].map { CGPoint(x: $0.x, y: 1 - $0.y) })
-        }.first(where: \.isValid)
+        }.filter(\.isValid)
     }
 
     private static func crop(_ image: CGImage, to boundary: CardBoundary) throws -> CGImage {

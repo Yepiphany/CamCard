@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct CamCardApp: App {
     private let repository: CardRepository
+    @State private var detailVisible = false
 
     init() {
         let demoMode = ProcessInfo.processInfo.arguments.contains("--demo-cards")
@@ -22,11 +23,60 @@ struct CamCardApp: App {
 
     var body: some Scene {
         WindowGroup {
-            CardLibraryView(repository: repository)
-                .preferredColorScheme(.light)
+            content
+                .environment(\.colorScheme, .light)
+                .environment(\.setDetailVisible, { detailVisible = $0 })
+                .preferredColorScheme(detailVisible ? .dark : .light)
         }
     }
+
+    @ViewBuilder private var content: some View {
+#if DEBUG && targetEnvironment(simulator)
+        if ProcessInfo.processInfo.arguments.contains("--test-open-urls") {
+            URLCapture(content: CardLibraryView(repository: repository))
+        } else {
+            CardLibraryView(repository: repository)
+        }
+#else
+        CardLibraryView(repository: repository)
+#endif
+    }
 }
+
+private struct DetailVisibilityKey: EnvironmentKey {
+    static let defaultValue: (Bool) -> Void = { _ in }
+}
+
+extension EnvironmentValues {
+    var setDetailVisible: (Bool) -> Void {
+        get { self[DetailVisibilityKey.self] }
+        set { self[DetailVisibilityKey.self] = newValue }
+    }
+}
+
+#if DEBUG && targetEnvironment(simulator)
+private struct URLCapture<Content: View>: View {
+    let content: Content
+    @State private var url: URL?
+
+    var body: some View {
+        content
+            .environment(\.openURL, OpenURLAction { url in
+                self.url = url
+                return .handled
+            })
+            .overlay(alignment: .bottom) {
+                if let url {
+                    Text(url.absoluteString)
+                        .font(.caption)
+                        .background(.white)
+                        .accessibilityIdentifier("test-opened-url")
+                        .allowsHitTesting(false)
+                }
+            }
+    }
+}
+#endif
 
 private enum DemoCard {
     static let card = BusinessCard(

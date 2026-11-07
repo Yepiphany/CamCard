@@ -36,12 +36,25 @@ struct ContactFields: Codable, Equatable {
         return result
     }
 
-    mutating func refreshUnedited(from previous: Self, with updated: Self) {
-        let previousName = name
+    mutating func refreshUnedited(from previous: Self, with updated: Self,
+                                  preservingNameParts: Set<WritableKeyPath<CardName, String>> = []) {
+        let originalDraftName = name
         for keyPath in Self.singleValues where self[keyPath: keyPath] == previous[keyPath: keyPath] {
             self[keyPath: keyPath] = updated[keyPath: keyPath]
         }
-        if name != previousName { nameDetails = nil }
+        if var details = nameDetails {
+            let baseline = previous.nameDetails ?? CardName(name: previous.name)
+            let incoming = updated.nameDetails ?? CardName(name: updated.name)
+            for part in CardName.parts where !preservingNameParts.contains(part)
+                && details[keyPath: part] == baseline[keyPath: part] {
+                details[keyPath: part] = incoming[keyPath: part]
+            }
+            name = originalDraftName == previous.name && details.displayName == incoming.displayName
+                ? updated.name : details.displayName
+            nameDetails = details
+        } else if originalDraftName == previous.name {
+            nameDetails = updated.nameDetails
+        }
         for keyPath in Self.multipleValues where self[keyPath: keyPath] == previous[keyPath: keyPath] {
             self[keyPath: keyPath] = updated[keyPath: keyPath]
         }
@@ -77,13 +90,14 @@ struct CardName: Codable, Equatable {
         }
     }
 
+    static let parts: [WritableKeyPath<Self, String>] = [
+        \.surname, \.givenName, \.phoneticSurname, \.phoneticGivenName,
+        \.prefix, \.middleName, \.suffix, \.nickname
+    ]
+
     var cleaned: Self {
         var result = self
-        let parts: [WritableKeyPath<Self, String>] = [
-            \.surname, \.givenName, \.phoneticSurname, \.phoneticGivenName,
-            \.prefix, \.middleName, \.suffix, \.nickname
-        ]
-        for part in parts {
+        for part in Self.parts {
             result[keyPath: part] = self[keyPath: part].trimmingCharacters(in: .whitespacesAndNewlines)
         }
         return result
@@ -134,6 +148,7 @@ struct BusinessCard: Identifiable, Codable, Equatable {
     var noteEntries: [CardNote]?
     var lastViewedAt: Date?
     var contactIdentifier: String?
+    var isFavorite: Bool?
     let createdAt: Date
     var updatedAt: Date
 
@@ -169,7 +184,44 @@ struct CardGroup: Identifiable, Codable, Equatable {
 }
 
 struct CardNote: Identifiable, Codable, Equatable {
+    struct Visit: Codable, Equatable {
+        enum Method: String, CaseIterable, Codable {
+            case inPerson = "上门拜访", phone = "电话拜访", chat = "聊天软件拜访", other = "其他"
+        }
+
+        var date = Date.now
+        var method: Method = .inPerson
+        var outcome = ""
+        var followUp: Date?
+    }
+
+    struct Attachment: Identifiable, Codable, Equatable {
+        enum Kind: String, Codable {
+            case photo = "照片", audio = "录音", location = "位置"
+        }
+
+        let id: UUID
+        let kind: Kind
+        var latitude: Double?
+        var longitude: Double?
+
+        init(id: UUID = UUID(), kind: Kind, latitude: Double? = nil, longitude: Double? = nil) {
+            self.id = id
+            self.kind = kind
+            self.latitude = latitude
+            self.longitude = longitude
+        }
+    }
+
     let id: UUID
-    let text: String
+    var text: String
     let date: Date
+    var visit: Visit?
+    var attachments: [Attachment]?
+
+    var summary: String {
+        if !text.isEmpty { return text }
+        if let outcome = visit?.outcome, !outcome.isEmpty { return outcome }
+        return attachments?.map { $0.kind.rawValue }.joined(separator: "、") ?? ""
+    }
 }

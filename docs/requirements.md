@@ -26,4 +26,4 @@
 - 复刻项目只在 Xcode 模拟器验证。导入测试图片覆盖识别闭环。相机实时预览和真实拍摄仍须实现，验收标记为未验证。
 - 原版版本不预先指定。取得实际版本及环境信息时记录在观察证据中。
 
-项目采用[合成名片测试集](../tests/fixtures/business-cards/README.md)。模拟器验收使用 iPhone 18 Pro 和 iOS 27.2。课程提交方式仍待确认。
+项目采用[合成名片测试集](../tests/fixtures/business-cards/README.md)。模拟器验收使用 iPhone 18 Pro 和 iOS 27.2。通过课程平台提交源码和课程报告。

@@ -14,6 +14,7 @@ final class CardRepository {
     private var library = Library()
     private let directory: URL?
     private var memoryImages: [String: CGImage] = [:]
+    private var memoryNoteAssets: [UUID: Data] = [:]
     private(set) var loadFailed = false
 
     var cards: [BusinessCard] {
@@ -37,7 +38,7 @@ final class CardRepository {
             let data = try Data(contentsOf: index)
             library = try JSONDecoder().decode(Library.self, from: data)
             loadFailed = false
-            removeUnreferencedImages()
+            removeUnreferencedFiles()
         } catch let error as CocoaError where error.code == .fileReadNoSuchFile {
             loadFailed = false
         } catch {
@@ -83,6 +84,44 @@ final class CardRepository {
         }
     }
 
+    func saveNotes(_ notes: [CardNote], assets: [UUID: Data] = [:], for id: UUID) throws {
+        guard var card = card(id: id) else { throw CocoaError(.fileNoSuchFile) }
+        let removed = Set(card.notes.flatMap { ($0.attachments ?? []).map(\.id) })
+            .subtracting(notes.flatMap { ($0.attachments ?? []).map(\.id) })
+        card.noteEntries = notes
+        card.note = nil
+        card.updatedAt = .now
+        var written: [UUID] = []
+        do {
+            for (id, data) in assets {
+                if let directory {
+                    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+                    try data.write(to: directory.appendingPathComponent(Self.assetName(id)), options: .atomic)
+                } else {
+                    memoryNoteAssets[id] = data
+                }
+                written.append(id)
+            }
+            try save(card)
+        } catch {
+            for id in written { removeNoteAsset(id) }
+            throw error
+        }
+        for id in removed { removeNoteAsset(id) }
+    }
+
+    func noteAsset(_ id: UUID) -> Data? {
+        guard let directory else { return memoryNoteAssets[id] }
+        return try? Data(contentsOf: directory.appendingPathComponent(Self.assetName(id)))
+    }
+
+    private static func assetName(_ id: UUID) -> String { "note-asset-\(id.uuidString)" }
+
+    private func removeNoteAsset(_ id: UUID) {
+        if directory != nil { removeImage(Self.assetName(id)) }
+        else { memoryNoteAssets.removeValue(forKey: id) }
+    }
+
     func image(_ name: String?) -> CGImage? {
         guard let name else { return nil }
         guard let directory else { return memoryImages[name] }
@@ -102,6 +141,7 @@ final class CardRepository {
         updated.cards.removeAll { ids.contains($0.id) }
         try commit(updated)
         for card in cards {
+            for id in card.notes.flatMap({ ($0.attachments ?? []).map(\.id) }) { removeNoteAsset(id) }
             for path in [card.originalImagePath, card.correctedImagePath].compactMap({ $0 }) {
                 removeImage(path)
             }
@@ -161,12 +201,15 @@ final class CardRepository {
         try (data as Data).write(to: directory.appendingPathComponent(name), options: .atomic)
     }
 
-    private func removeUnreferencedImages() {
+    private func removeUnreferencedFiles() {
         guard let directory,
               let files = try? FileManager.default.contentsOfDirectory(atPath: directory.path) else { return }
-        let referenced = Set(library.cards.flatMap { [$0.originalImagePath, $0.correctedImagePath].compactMap { $0 } })
+        let referenced = Set(library.cards.flatMap { card in
+            [card.originalImagePath, card.correctedImagePath].compactMap { $0 }
+                + card.notes.flatMap { ($0.attachments ?? []).filter { $0.kind != .location }.map { Self.assetName($0.id) } }
+        })
         for name in files where !referenced.contains(name) &&
-            (name.hasSuffix("-original.png") || name.hasSuffix("-corrected.png")) {
+            (name.hasSuffix("-original.png") || name.hasSuffix("-corrected.png") || name.hasPrefix("note-asset-")) {
             removeImage(name)
         }
     }

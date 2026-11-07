@@ -25,8 +25,10 @@ xcodebuild -project CamCard.xcodeproj -scheme CamCard \
   -destination 'platform=iOS Simulator,name=iPhone 18 Pro,OS=27.2' \
   -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO build
 
-# 将 CC-001 导入已启动的专用测试模拟器，确保它是照片选择器中的第一张。
-xcrun simctl addmedia booted tests/fixtures/business-cards/images/CC-001.png
+# 向已启动的专用测试模拟器导入 UI 回归样本。
+xcrun simctl addmedia booted tests/fixtures/business-cards/images/CC-001.png \
+  tests/fixtures/business-cards/images/CC-016.png tests/fixtures/business-cards/images/CC-017.png \
+  tests/fixtures/business-cards/images/CC-030.png
 # 已安装 CamCard 时，在专用模拟器中预先授予相册权限。
 xcrun simctl privacy booted grant photos com.yepiphany.camcard
 xcrun simctl privacy booted grant contacts com.yepiphany.camcard
@@ -36,7 +38,19 @@ xcodebuild -project CamCard.xcodeproj -scheme CamCard \
   -derivedDataPath DerivedData -parallel-testing-enabled NO CODE_SIGNING_ALLOWED=NO test
 ```
 
-课程交付使用模拟器演示。发行渠道和签名配置待确认。
+课程交付使用模拟器演示，通过课程平台提交源码和[课程报告](docs/course-report.md)。无需为演示配置真机签名。
+
+姓名草稿、二维码识别和备注数据兼容性可在已启动的模拟器单独复测：
+
+```sh
+model_dir=$(mktemp -d)
+xcrun --sdk iphonesimulator swiftc \
+  -sdk "$(xcrun --sdk iphonesimulator --show-sdk-path)" \
+  -target "$(uname -m)-apple-ios27.0-simulator" \
+  CamCard/BusinessCard.swift CamCard/CardRepository.swift CamCard/ContactExtraction.swift \
+  CamCard/ScanProcessor.swift scripts/CheckAcceptanceModels.swift -o "$model_dir/check-acceptance"
+xcrun simctl spawn booted "$model_dir/check-acceptance"
+```
 
 ## 第四阶段识别跑分
 

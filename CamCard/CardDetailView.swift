@@ -17,16 +17,19 @@ struct CardDetailView: View {
     @State private var exportFile: ContactExportFile?
     @State private var error: String?
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.setDetailVisible) private var setDetailVisible
     @Environment(\.openURL) private var openURL
 
     var body: some View {
         if let card = repository.card(id: id) {
             detail(card)
                 .onAppear {
+                    setDetailVisible(true)
                     var updated = card
                     updated.lastViewedAt = .now
                     try? repository.save(updated)
                 }
+                .onDisappear { setDetailVisible(false) }
         }
     }
 
@@ -43,7 +46,15 @@ struct CardDetailView: View {
                     .accessibilityLabel("返回")
                     .accessibilityIdentifier("detail-back")
                     Spacer()
-                    Image(systemName: "star").frame(width: 36)
+                    Button {
+                        var updated = card
+                        updated.isFavorite = card.isFavorite != true
+                        do { try repository.save(updated) }
+                        catch { self.error = "无法更新收藏。" }
+                    } label: {
+                        Image(systemName: card.isFavorite == true ? "star.fill" : "star")
+                            .frame(width: 40, height: 44).contentShape(Rectangle())
+                    }.accessibilityLabel(card.isFavorite == true ? "取消收藏" : "收藏")
                     Button { more = true } label: {
                         Image(systemName: "ellipsis").frame(width: 38, height: 44)
                             .contentShape(Rectangle())
@@ -52,7 +63,8 @@ struct CardDetailView: View {
                     .accessibilityIdentifier("detail-more")
                 }.padding(.trailing, 4)
             }
-            .frame(height: 46)
+            .frame(height: 44)
+            .buttonStyle(.plain)
             .foregroundStyle(.white)
             .background {
                 ZStack {
@@ -70,29 +82,33 @@ struct CardDetailView: View {
 
             ScrollView {
                 VStack(spacing: 10) {
-                    summary(fields)
-                        .onTapGesture {
-                            if card.originalImagePath != nil { page = .image }
+                    VStack(spacing: 0) {
+                        summary(fields)
+                            .onTapGesture {
+                                if card.originalImagePath != nil { page = .image }
+                            }
+                        HStack(spacing: 0) {
+                            Button { call((fields.mobile + fields.officePhone).first) } label: {
+                                action("电话", icon: "phone.fill", color: Color(red: 0.29, green: 0.55, blue: 0.97))
+                            }.disabled((fields.mobile + fields.officePhone).isEmpty)
+                                .accessibilityIdentifier("detail-call")
+                            Button { map(fields.address) } label: {
+                                action("地址", icon: "mappin", color: Color(red: 0.98, green: 0.71, blue: 0.05))
+                            }.disabled(fields.address == nil)
+                            Button { page = .notes } label: { action("备注", icon: "note.text", color: Color(red: 0.59, green: 0.75, blue: 0.12)) }
+                            Button { page = .edit } label: { action("编辑", icon: "pencil", color: .teal) }
                         }
-                    HStack {
-                        Button { call((fields.mobile + fields.officePhone).first) } label: {
-                            action("电话", icon: "phone.fill", color: Color(red: 0.29, green: 0.55, blue: 0.97))
-                        }.disabled((fields.mobile + fields.officePhone).isEmpty)
-                        Button { map(fields.address) } label: {
-                            action("地址", icon: "mappin", color: Color(red: 0.98, green: 0.71, blue: 0.05))
-                        }.disabled(fields.address == nil)
-                        Button { page = .notes } label: { action("备注", icon: "note.text", color: Color(red: 0.59, green: 0.75, blue: 0.12)) }
-                        Button { page = .edit } label: { action("编辑", icon: "pencil", color: .teal) }
+                        .buttonStyle(.plain)
+                        .padding(.top, 20)
+                        .padding(.bottom, 14)
                     }
-                    .buttonStyle(.plain)
-                    .padding(.vertical, 10)
                     .background(.white)
 
                     VStack(spacing: 0) {
                         let names = repository.groups.filter { card.groupIDs.contains($0.id) }.map(\.name)
                         detailLink(names.isEmpty ? "未分组" : "分组: " + names.joined(separator: "、"),
                                    icon: "person.2.fill", id: "detail-groups") { page = .groups }
-                        detailLink(card.notes.first.map { "备注: " + $0.text } ?? "备注",
+                        detailLink(card.notes.first.map { "备注: " + $0.summary } ?? "备注",
                                    icon: "note.text", id: "detail-notes") { page = .notes }
                     }
                     .background(.white)
@@ -115,6 +131,7 @@ struct CardDetailView: View {
                             Button {
                                 if let url = ContactExport.website(website) { openURL(url) }
                             } label: { field(website, label: "主页", icon: "globe") }.buttonStyle(.plain)
+                                .accessibilityIdentifier("detail-website")
                         }
                         rows("传真", icon: "printer.fill", values: fields.fax)
                     }
@@ -129,19 +146,20 @@ struct CardDetailView: View {
                     VStack(spacing: 4) {
                         Image(systemName: "person.crop.rectangle").font(.title3)
                         Text(card.contactIdentifier == nil ? "存入通讯录" : "已存").font(.caption2)
-                    }
+                    }.frame(width: 59)
                 }.accessibilityIdentifier("detail-contacts")
-                Text("向对方递名片").frame(maxWidth: .infinity)
-                    .padding(.vertical, 8).overlay(Capsule().strokeBorder(CardPalette.blue))
+                Text("向对方递名片").frame(maxWidth: .infinity, minHeight: 40)
+                    .overlay(Capsule().strokeBorder(CardPalette.blue))
                 Button { prepareExport(card) } label: {
-                    Text("分享名片").frame(maxWidth: .infinity)
-                        .padding(.vertical, 8).foregroundStyle(.white)
-                        .background(.green, in: Capsule())
+                    Label("分享名片", systemImage: "bubble.left.and.bubble.right.fill")
+                        .frame(maxWidth: .infinity, minHeight: 40).foregroundStyle(.white)
+                        .background(Color(red: 0.34, green: 0.66, blue: 0.17), in: Capsule())
                 }
             }
-            .font(.footnote)
+            .font(.subheadline)
+            .buttonStyle(.plain)
             .foregroundStyle(CardPalette.blue)
-            .padding(.horizontal, 12)
+            .padding(.horizontal, 15)
             .padding(.vertical, 8)
             .background(.white)
         }
@@ -149,21 +167,23 @@ struct CardDetailView: View {
             if more { morePanel(card) }
         }
         .fullScreenCover(item: $page) { selection in
-            switch selection {
-            case .image:
-                CardImages(original: repository.image(card.originalImagePath), corrected: repository.image(card.correctedImagePath))
-            case .edit:
-                ContactFieldsEditor(fields: card.fields, original: repository.image(card.originalImagePath),
-                                    corrected: repository.image(card.correctedImagePath), recognition: card.recognition) { fields, _ in
-                    try update { $0.fields = fields }
+            Group {
+                switch selection {
+                case .image:
+                    CardImages(original: repository.image(card.originalImagePath), corrected: repository.image(card.correctedImagePath))
+                case .edit:
+                    ContactFieldsEditor(fields: card.fields, original: repository.image(card.originalImagePath),
+                                        corrected: repository.image(card.correctedImagePath), recognition: card.recognition) { fields, _ in
+                        try update { $0.fields = fields }
+                    }
+                case .groups:
+                    CardGroupsPicker(repository: repository, cardID: id)
+                case .notes:
+                    CardNotes(repository: repository, cardID: id)
+                case .contacts:
+                    ContactsDestination { try await saveToContacts() }
                 }
-            case .groups:
-                CardGroupsPicker(repository: repository, cardID: id)
-            case .notes:
-                CardNotes(repository: repository, cardID: id)
-            case .contacts:
-                ContactsDestination { try await saveToContacts() }
-            }
+            }.preferredColorScheme(selection == .image ? .dark : .light)
         }
         .alert("提示", isPresented: $confirmDelete) {
             Button("取消", role: .cancel) {}
@@ -182,6 +202,7 @@ struct CardDetailView: View {
         } message: { Text("请在设置中允许访问通讯录。") }
         .sheet(item: $exportFile) { file in
             ContactExportConfirmation(file: file)
+                .preferredColorScheme(.light)
         }
         .managementError($error)
         .toolbar(.hidden, for: .navigationBar)
@@ -237,7 +258,7 @@ struct CardDetailView: View {
         } label: {
             VStack(spacing: 8) {
                 Image(systemName: icon).font(.system(size: 26)).foregroundStyle(color)
-                    .frame(width: 58, height: 58).background(.white, in: RoundedRectangle(cornerRadius: 8))
+                    .frame(width: 60, height: 60).background(.white, in: RoundedRectangle(cornerRadius: 8))
                 Text(title).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
             }.frame(maxWidth: .infinity)
         }.buttonStyle(.plain).disabled(perform == nil)
@@ -295,11 +316,11 @@ struct CardDetailView: View {
     }
 
     private func summary(_ fields: ContactFields) -> some View {
-        VStack(alignment: .leading, spacing: 9) {
-            HStack(alignment: .top, spacing: 12) {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top, spacing: 13) {
                 Text(fields.name?.first.map(String.init) ?? "名")
                     .foregroundStyle(.secondary)
-                    .frame(width: 58, height: 58)
+                    .frame(width: 60, height: 60)
                     .background(CardPalette.background, in: Circle())
                 VStack(alignment: .leading, spacing: 3) {
                     Text(fields.name ?? "未命名名片").font(.headline)
@@ -322,8 +343,8 @@ struct CardDetailView: View {
         .background(.white, in: RoundedRectangle(cornerRadius: 12))
         .shadow(color: .black.opacity(0.08), radius: 4, y: 3)
         .padding(.horizontal, 10)
-        .padding(.top, 7)
-        .background(alignment: .top) { CardPalette.navy.frame(height: 80) }
+        .padding(.top, 9)
+        .background(alignment: .top) { CardPalette.navy.frame(height: 90) }
     }
 
     private func action(_ title: String, icon: String, color: Color) -> some View {
@@ -331,7 +352,7 @@ struct CardDetailView: View {
             Image(systemName: icon).foregroundStyle(.white)
                 .frame(width: 30, height: 30)
                 .background(color, in: Circle())
-            Text(title).font(.caption)
+            Text(title).font(.caption).foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
     }

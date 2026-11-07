@@ -10,7 +10,28 @@ struct ScannerView: View {
     @State private var showsAlbum = false
     @State private var accurate = false
     @State private var fields = ContactFields()
-    @State private var showsCamera = false
+    @State private var editedNameParts: Set<WritableKeyPath<CardName, String>> = []
+    @State private var camera = ScannerCamera()
+    @State private var cameraReady = false
+    @State private var torch = false
+    @State private var mode: CaptureMode = .single
+    @State private var batch: [Data] = []
+    @State private var pending: [(image: CGImage, boundary: CardBoundary?)] = []
+    @State private var showsMultiGuide = false
+    @AppStorage("hasSeenMultiGuide") private var hasSeenMultiGuide = false
+    @State private var qr: String?
+    @State private var showsScannerOptions = false
+    @State private var openedAlbum = false
+#if DEBUG && targetEnvironment(simulator)
+    @State private var corruptNextImport = ProcessInfo.processInfo.arguments.contains("--test-invalid-image")
+#endif
+
+    private enum CaptureMode: String, CaseIterable {
+        case continuous = "连续拍摄", multiple = "多张拍摄", single = "单张拍摄", qr = "二维码"
+    }
+
+    private var shouldRunCamera: Bool { result == nil && !showsAlbum }
+    private static let batchLimit = 5
     @State private var showsCrop = false
     @State private var showsName = false
     @State private var showsLanguages = false
@@ -44,19 +65,17 @@ struct ScannerView: View {
             }
         }
         .fullScreenCover(isPresented: $showsAlbum) {
-            ScanAlbum { data in
+            ScanAlbum(limit: mode == .continuous ? max(1, Self.batchLimit - batch.count) : 1) { images in
                 showsAlbum = false
-                recognize(data)
+#if DEBUG && targetEnvironment(simulator)
+                if corruptNextImport {
+                    corruptNextImport = false
+                    importImages([Data("invalid image".utf8)])
+                    return
+                }
+#endif
+                importImages(images)
             }
-            .preferredColorScheme(.light)
-        }
-        .fullScreenCover(isPresented: $showsCamera) {
-            CameraCapture { data in
-                showsCamera = false
-                guard let data else { return }
-                recognize(data)
-            }
-            .ignoresSafeArea()
         }
         .fullScreenCover(isPresented: $showsCrop) {
             if let result {
@@ -77,9 +96,33 @@ struct ScannerView: View {
             }
         }
         .onAppear {
-            if opensAlbum, result == nil, work == nil { showsAlbum = true }
+            if opensAlbum, !openedAlbum {
+                openedAlbum = true
+                showsAlbum = true
+            }
+        }
+        .task(id: shouldRunCamera) {
+            if shouldRunCamera { await startPreview() }
+            else { stopPreview() }
+        }
+        .onDisappear { stopPreview() }
+        .alert("新增多张拍摄功能", isPresented: $showsMultiGuide) {
+            Button("我知道了", role: .cancel) {}
+        } message: {
+            Text("可一次拍摄多张名片，系统会自动寻找每张名片的边框。")
+        }
+        .alert("二维码", isPresented: Binding(get: { qr != nil }, set: { if !$0 { qr = nil } })) {
+            Button("复制") { UIPasteboard.general.string = qr; qr = nil }
+            Button("关闭", role: .cancel) { qr = nil }
+        } message: {
+            Text(qr ?? "")
+        }
+        .confirmationDialog("扫描设置", isPresented: $showsScannerOptions, titleVisibility: .visible) {
+            Button("基础识别") { accurate = false }
+            Button("AI高精度识别") { accurate = true }
         }
         .preferredColorScheme(result == nil ? .dark : .light)
+        .statusBarHidden(result == nil && !showsAlbum)
         .alert("扫描名片", isPresented: Binding(
             get: { message != nil },
             set: { if !$0 { message = nil } }
@@ -99,89 +142,175 @@ struct ScannerView: View {
 
     private var scanner: some View {
         VStack(spacing: 10) {
-            HStack {
-                Button {
-                    work?.cancel()
-                    dismiss()
-                } label: {
-                    Image(systemName: "xmark").font(.title2)
-                }
-                .accessibilityLabel("关闭")
-                .accessibilityIdentifier("close-scanner")
-                Spacer()
-                HStack {
+            ZStack {
+                HStack(spacing: 0) {
                     recognitionMode("基础识别", accurate: false)
                     recognitionMode("AI高精度识别", accurate: true)
                 }
                 .font(.subheadline)
                 .padding(3)
                 .background(.black, in: Capsule())
-                Spacer()
-                Image(systemName: "ellipsis").font(.title2)
+                .overlay(Capsule().strokeBorder(.white.opacity(0.28)))
+                HStack {
+                    Button {
+                        work?.cancel()
+                        dismiss()
+                    } label: { Image(systemName: "xmark").font(.title2) }
+                    .accessibilityLabel("关闭")
+                    .accessibilityIdentifier("close-scanner")
+                    Spacer()
+                    Button { showsScannerOptions = true } label: {
+                        Image(systemName: "ellipsis").font(.title2)
+                    }
+                    .accessibilityLabel("扫描设置")
+                }
             }
             .padding(.horizontal, 20)
+            .frame(height: 42)
 
-            GeometryReader { proxy in
-                let width = min(proxy.size.width * 0.76, proxy.size.height * 0.60)
-                Rectangle()
-                    .strokeBorder(.white, lineWidth: 1.5)
-                    .overlay(alignment: .top) {
-                        Text("请将镜头靠近名片")
-                            .font(.subheadline)
-                            .padding(5)
-                            .background(.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 6))
-                            .padding(.top, 7)
-                    }
-                    .overlay(alignment: .bottom) {
-                        Button(action: toggleTorch) {
-                            Label("轻触照亮", systemImage: "flashlight.on.fill")
-                                .font(.footnote).padding(8)
-                                .background(.black.opacity(0.65), in: Capsule())
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.bottom, 20)
-                    }
-                    .frame(width: max(0, width), height: max(0, width / 0.60))
-                    .position(x: proxy.size.width / 2, y: proxy.size.height / 2)
-            }
-            .background(.black.opacity(0.35))
-
-            HStack(spacing: 16) {
-                Text("连续拍摄").font(.caption2).foregroundStyle(.secondary)
-                Text("多张拍摄").font(.footnote).foregroundStyle(.secondary)
-                VStack(spacing: 4) {
-                    Capsule().fill(CardPalette.blue).frame(width: 23, height: 3)
-                    Text("单张拍摄").font(.subheadline.bold())
-                }
-                Text("二维码").font(.footnote).foregroundStyle(.secondary)
-            }
+            viewfinder
+            modePicker
             HStack {
                 Button { showsAlbum = true } label: {
                     VStack(spacing: 6) {
                         Image(systemName: "photo").font(.title3)
                         Text("相册").font(.caption)
                     }
+                    .foregroundStyle(mode == .qr ? .gray : .white)
                     .frame(maxWidth: .infinity)
                 }
                 .accessibilityIdentifier("scan-photo-picker")
                 Button(action: openCamera) {
-                    Circle().fill(.white)
+                    Circle().fill(mode == .qr ? .gray : .white)
                         .frame(width: 55, height: 55)
                         .padding(8)
                         .background(.white.opacity(0.22), in: Circle())
                 }
+                .disabled(mode == .qr)
                 .accessibilityLabel("拍摄")
                 .accessibilityIdentifier("scan-shutter")
-                Image(systemName: "rectangle.badge.plus")
-                    .frame(maxWidth: .infinity)
+                Group {
+                    if mode == .continuous || mode == .single {
+                        Button {
+                            if batch.isEmpty { selectMode(.continuous); showsAlbum = true }
+                            else { finishBatch() }
+                        } label: {
+                            VStack(spacing: 4) {
+                                Image(systemName: batch.isEmpty ? "rectangle.on.rectangle" : "checkmark.circle.fill")
+                                    .font(.title3)
+                                Text(batch.isEmpty ? "\(Self.batchLimit)" : "\(batch.count) 完成").font(.caption)
+                            }
+                        }
+                        .accessibilityIdentifier("scan-batch")
+                    } else {
+                        Color.clear.frame(height: 1).accessibilityHidden(true)
+                    }
+                }.frame(maxWidth: .infinity)
             }
-            .padding(.vertical, 20)
+            .padding(.top, 12)
+            .padding(.bottom, 49)
             .disabled(work != nil)
         }
-        .padding(.top, 9)
         .foregroundStyle(.white)
-        .background(Color(white: 0.08).ignoresSafeArea())
+        .background {
+            ZStack {
+                Color(white: 0.06)
+                if cameraReady { ScannerPreview(session: camera.session) }
+            }.ignoresSafeArea()
+        }
         .environment(\.colorScheme, .dark)
+    }
+
+    private var viewfinder: some View {
+        GeometryReader { proxy in
+            let width = min(proxy.size.width * 0.76, proxy.size.height * 0.60)
+            let qrWidth = min(proxy.size.width * 0.65, max(0, proxy.size.height - 130))
+            let torchY = mode == .single || mode == .continuous
+                ? (proxy.size.height + width / 0.60) / 2 - 30
+                : proxy.size.height - 32
+            ZStack {
+                if mode == .qr {
+                    VStack(spacing: 16) {
+                        QRGuide().frame(width: qrWidth, height: qrWidth)
+                        Text("扫描 CC 名片二维码，面对面交换名片").font(.footnote)
+                    }.padding(.bottom, 48)
+                } else if mode == .multiple {
+                    Text("正在寻找名片边框").font(.subheadline)
+                        .frame(maxHeight: .infinity, alignment: .top)
+                        .padding(.top, 18)
+                } else {
+                    Rectangle()
+                        .strokeBorder(.white, lineWidth: 1.5)
+                        .overlay(alignment: .top) {
+                            Text("请将镜头靠近名片")
+                                .font(.subheadline)
+                                .padding(.horizontal, 10).padding(.vertical, 5)
+                                .background(.white.opacity(0.07), in: RoundedRectangle(cornerRadius: 8))
+                                .padding(.top, 6)
+                        }
+                        .frame(width: width, height: width / 0.60)
+                }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .overlay {
+                Button(action: toggleTorch) {
+                    Label(torch ? "轻触关闭" : "轻触照亮",
+                          systemImage: torch ? "flashlight.off.fill" : "flashlight.on.fill")
+                        .font(.footnote).padding(.horizontal, 12).padding(.vertical, 8)
+                        .background(.black.opacity(0.65), in: Capsule())
+                }
+                .buttonStyle(.plain)
+                .position(x: proxy.size.width / 2, y: max(18, torchY))
+            }
+        }
+    }
+
+    private var modePicker: some View {
+        GeometryReader { proxy in
+            let step: CGFloat = min(76, proxy.size.width * 0.177)
+            let modes = CaptureMode.allCases
+            let active = modes.firstIndex(of: mode) ?? 2
+            ZStack {
+                ForEach(Array(modes.enumerated()), id: \.element) { index, item in
+                    Button { selectMode(item) } label: {
+                        VStack(spacing: 6) {
+                            Capsule().fill(item == mode ? CardPalette.blue : .clear).frame(width: 23, height: 2)
+                            Text(item.rawValue)
+                                .font(item == mode ? .subheadline.weight(.semibold) : abs(index - active) > 1 ? .caption2 : .footnote)
+                                .foregroundStyle(item == mode ? .white : .gray)
+                        }
+                        .frame(width: step, height: 36)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityIdentifier("scan-mode-\(item.rawValue)")
+                    .accessibilityAddTraits(item == mode ? .isSelected : [])
+                    .position(x: proxy.size.width / 2 + CGFloat(index - active) * step, y: 18)
+                }
+            }
+            .contentShape(Rectangle())
+            .gesture(DragGesture(minimumDistance: 24).onEnded { gesture in
+                let next = active + (gesture.translation.width < 0 ? 1 : -1)
+                if modes.indices.contains(next) { selectMode(modes[next]) }
+            })
+            .clipped()
+        }
+        .frame(height: 36)
+        .disabled(work != nil)
+    }
+
+    private func selectMode(_ item: CaptureMode) {
+        guard mode != item else { return }
+        if mode == .continuous, !batch.isEmpty {
+            message = "请先完成当前连续拍摄。"
+            return
+        }
+        withAnimation(.easeInOut(duration: 0.20)) { mode = item }
+        camera.enableQR(item == .qr)
+        if item == .multiple && !hasSeenMultiGuide {
+            hasSeenMultiGuide = true
+            showsMultiGuide = true
+        }
     }
 
     private func resultView(_ result: ScanResult) -> some View {
@@ -191,9 +320,8 @@ struct ScannerView: View {
                     .accessibilityIdentifier("scan-result")
                 HStack {
                     Button("重新拍摄") {
-                        self.result = nil
-                        fields = ContactFields()
-                        previewPage = 0
+                        pending.removeAll()
+                        clearDraft()
                     }
                     .tint(.primary)
                     Spacer()
@@ -212,6 +340,12 @@ struct ScannerView: View {
                     preview(result)
                         .padding(.horizontal, 16)
                         .padding(.top, 12)
+
+                    if result.recognition.rawText.isEmpty {
+                        Text("未识别到文字。可调整裁剪或手动填写。")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                    }
 
                     if result.needsManualCrop {
                         Text("未检测到名片边界。可手动裁剪后重新识别。")
@@ -364,10 +498,14 @@ struct ScannerView: View {
     }
 
     private func nameEditor(_ result: ScanResult) -> some View {
-        CardNameEditor(
-            details: fields.nameDetails ?? CardName(name: fields.name),
+        let original = fields.nameDetails ?? CardName(name: fields.name)
+        return CardNameEditor(
+            details: original,
             preview: NameImagePreview(image: result.corrected, recognition: result.recognition)
         ) { details in
+            let changed = CardName.parts.filter { original[keyPath: $0] != details[keyPath: $0] }
+            guard !changed.isEmpty else { return }
+            editedNameParts.formUnion(changed)
             fields.name = details.displayName
             fields.nameDetails = details
         }
@@ -418,8 +556,8 @@ struct ScannerView: View {
     private func recognitionMode(_ title: String, accurate: Bool) -> some View {
         Button { self.accurate = accurate } label: {
             Text(title)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 5)
+                .fontWeight(self.accurate == accurate ? .semibold : .regular)
+                .frame(width: 117, height: 26)
                 .foregroundStyle(self.accurate == accurate ? .black : .white)
                 .background(self.accurate == accurate ? .white : .clear, in: Capsule())
         }
@@ -430,7 +568,11 @@ struct ScannerView: View {
 
     private func toggleTorch() {
         cameraDenied = false
-        message = "请在打开的相机界面调整闪光灯。"
+        let enabled = !torch
+        camera.setTorch(enabled) { applied in
+            if applied { torch = enabled }
+            else { message = "当前设备无法照亮。" }
+        }
     }
 
     private func languageName(_ code: String) -> String {
@@ -487,7 +629,13 @@ struct ScannerView: View {
         isSaving = true
         do {
             try onSave(result, fields.cleaned)
-            dismiss()
+            if pending.isEmpty {
+                dismiss()
+            } else {
+                let next = pending.removeFirst()
+                clearDraft()
+                recognize(next.image, boundary: next.boundary)
+            }
         } catch {
             isSaving = false
             cameraDenied = false
@@ -504,28 +652,138 @@ struct ScannerView: View {
         }
     }
 
+    private func clearDraft() {
+        result = nil
+        fields = ContactFields()
+        editedNameParts = []
+        previewPage = 0
+        isSaving = false
+    }
+
+    private func recognize(_ image: CGImage, boundary: CardBoundary?) {
+        let accurate = accurate
+        let languages = languages
+        process {
+            try ScanProcessor.recognize(original: image, source: image, boundary: boundary,
+                                        accurate: accurate, languages: languages)
+        }
+    }
+
+    private func importImages(_ images: [Data]) {
+        guard let first = images.first else { return }
+        switch mode {
+        case .single: recognize(first)
+        case .qr: readQR(first)
+        case .continuous:
+            let captures = batch + images
+            batch.removeAll()
+            prepareBatch(captures, detectMultiple: false)
+        case .multiple: prepareBatch([first], detectMultiple: true)
+        }
+    }
+
+    private func prepareBatch(_ images: [Data], detectMultiple: Bool) {
+        guard work == nil else { return }
+        work = Task {
+            defer { work = nil }
+            do {
+                let accurate = accurate
+                let languages = languages
+                let (firstResult, rest) = try await Task.detached(priority: .userInitiated) {
+                    let jobs = try images.flatMap { data -> [(CGImage, CardBoundary?)] in
+                        let image = try ScanProcessor.decode(data)
+                        guard detectMultiple else { return [(image, nil)] }
+                        let boundaries = try ScanProcessor.boundaries(in: image)
+                        return boundaries.isEmpty ? [(image, nil)] : boundaries.map { (image, $0) }
+                    }
+                    guard let first = jobs.first else { throw ScanProcessor.ScanError.unreadableImage }
+                    let result = try ScanProcessor.recognize(original: first.0, source: first.0, boundary: first.1,
+                                                             accurate: accurate, languages: languages)
+                    return (result, Array(jobs.dropFirst()))
+                }.value
+                try Task.checkCancellation()
+                pending = rest
+                fields = firstResult.recognition.candidates
+                result = firstResult
+            } catch {
+                guard !Task.isCancelled else { return }
+                message = (error as? ScanProcessor.ScanError)?.errorDescription ?? "无法识别这张图片，请重试。"
+            }
+        }
+    }
+
+    private func finishBatch() {
+        let captures = batch
+        batch.removeAll()
+        prepareBatch(captures, detectMultiple: false)
+    }
+
+    private func readQR(_ data: Data) {
+        guard work == nil else { return }
+        work = Task {
+            defer { work = nil }
+            do {
+                let payload = try await Task.detached(priority: .userInitiated) {
+                    try ScanProcessor.qrPayload(in: data)
+                }.value
+                try Task.checkCancellation()
+                if let payload { qr = payload }
+                else { message = "未找到二维码，请重新选择。" }
+            } catch {
+                guard !Task.isCancelled else { return }
+                message = (error as? ScanProcessor.ScanError)?.errorDescription ?? "无法读取二维码。"
+            }
+        }
+    }
+
+    private func startPreview() async {
+#if !targetEnvironment(simulator)
+        let authorized: Bool
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized: authorized = true
+        case .notDetermined: authorized = await AVCaptureDevice.requestAccess(for: .video)
+        default: authorized = false
+        }
+        guard authorized, !Task.isCancelled, shouldRunCamera else { return }
+        let started = await camera.start { payload in
+            if mode == .qr && shouldRunCamera && qr == nil { qr = payload }
+        }
+        guard !Task.isCancelled, shouldRunCamera else { return }
+        cameraReady = started
+        camera.enableQR(mode == .qr)
+#endif
+    }
+
+    private func stopPreview() {
+        camera.stop()
+        cameraReady = false
+        torch = false
+    }
+
     private func openCamera() {
         cameraDenied = false
 #if targetEnvironment(simulator)
         message = "当前设备无法使用相机，请从相册导入。"
 #else
-        guard UIImagePickerController.isSourceTypeAvailable(.camera) else {
+        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else {
+            showCameraDenied()
+            return
+        }
+        guard cameraReady else {
             message = "当前设备无法使用相机，请从相册导入。"
             return
         }
-        switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            showsCamera = true
-        case .notDetermined:
-            Task {
-                if await AVCaptureDevice.requestAccess(for: .video) {
-                    showsCamera = true
-                } else {
-                    showCameraDenied()
-                }
+        guard work == nil else { return }
+        let captureMode = mode
+        camera.capture { data in
+            guard shouldRunCamera else { return }
+            guard let data else { message = "拍摄失败，请重试。"; return }
+            if captureMode == .continuous {
+                batch.append(data)
+                if batch.count == Self.batchLimit { finishBatch() }
+            } else {
+                importImages([data])
             }
-        default:
-            showCameraDenied()
         }
 #endif
     }
@@ -545,7 +803,8 @@ struct ScannerView: View {
                 let scanned = try await Task.detached(priority: .userInitiated, operation: operation).value
                 try Task.checkCancellation()
                 if let previous = result?.recognition.candidates {
-                    fields.refreshUnedited(from: previous, with: scanned.recognition.candidates)
+                    fields.refreshUnedited(from: previous, with: scanned.recognition.candidates,
+                                           preservingNameParts: editedNameParts)
                 } else {
                     fields = scanned.recognition.candidates
                 }
@@ -562,32 +821,151 @@ struct ScannerView: View {
     }
 }
 
-private struct CameraCapture: UIViewControllerRepresentable {
-    var completion: (Data?) -> Void
+private struct QRGuide: View {
+    var body: some View {
+        TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
+            GeometryReader { proxy in
+                let size = proxy.size.width
+                let phase = timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 2.5) / 2.5
+                Path { path in
+                    let inset: CGFloat = 1
+                    let length: CGFloat = 20
+                    for (x, y, dx, dy) in [(inset, inset, length, length), (size - inset, inset, -length, length),
+                                           (inset, size - inset, length, -length), (size - inset, size - inset, -length, -length)] {
+                        path.move(to: CGPoint(x: x, y: y + dy))
+                        path.addLine(to: CGPoint(x: x, y: y))
+                        path.addLine(to: CGPoint(x: x + dx, y: y))
+                    }
+                }.stroke(CardPalette.blue, lineWidth: 2)
+                Rectangle().fill(CardPalette.blue.opacity(0.8)).frame(height: 2)
+                    .position(x: size / 2, y: 8 + (size - 16) * phase)
+            }
+        }.background(.black.opacity(0.30)).accessibilityHidden(true)
+    }
+}
 
-    func makeUIViewController(context: Context) -> UIImagePickerController {
-        let controller = UIImagePickerController()
-        controller.sourceType = .camera
-        controller.cameraCaptureMode = .photo
-        controller.delegate = context.coordinator
-        return controller
+private struct ScannerPreview: UIViewRepresentable {
+    let session: AVCaptureSession
+
+    func makeUIView(context: Context) -> PreviewView {
+        let view = PreviewView()
+        view.preview.session = session
+        view.preview.videoGravity = .resizeAspectFill
+        if let connection = view.preview.connection, connection.isVideoRotationAngleSupported(90) {
+            connection.videoRotationAngle = 90
+        }
+        return view
     }
 
-    func updateUIViewController(_ controller: UIImagePickerController, context: Context) {}
+    func updateUIView(_ view: PreviewView, context: Context) {}
 
-    func makeCoordinator() -> Coordinator { Coordinator(completion: completion) }
+    final class PreviewView: UIView {
+        override class var layerClass: AnyClass { AVCaptureVideoPreviewLayer.self }
+        var preview: AVCaptureVideoPreviewLayer { layer as! AVCaptureVideoPreviewLayer }
+    }
+}
 
-    final class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-        let completion: (Data?) -> Void
+private final class ScannerCamera: NSObject, AVCapturePhotoCaptureDelegate, AVCaptureMetadataOutputObjectsDelegate, @unchecked Sendable {
+    let session = AVCaptureSession()
+    private let queue = DispatchQueue(label: "CamCard.ScannerCamera")
+    private let photo = AVCapturePhotoOutput()
+    private let metadata = AVCaptureMetadataOutput()
+    private var device: AVCaptureDevice?
+    private var photoHandler: ((Data?) -> Void)?
+    private var qrHandler: ((String) -> Void)?
+    private var lastQR: String?
 
-        init(completion: @escaping (Data?) -> Void) { self.completion = completion }
-
-        func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { completion(nil) }
-
-        func imagePickerController(_ picker: UIImagePickerController,
-                                   didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]) {
-            completion((info[.originalImage] as? UIImage)?.jpegData(compressionQuality: 0.95))
+    func start(onQR: @escaping (String) -> Void) async -> Bool {
+        await withCheckedContinuation { continuation in
+            queue.async {
+                if self.device == nil {
+                    guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back),
+                          let input = try? AVCaptureDeviceInput(device: device),
+                          self.session.canAddInput(input), self.session.canAddOutput(self.photo) else {
+                        continuation.resume(returning: false)
+                        return
+                    }
+                    self.session.beginConfiguration()
+                    self.session.sessionPreset = .photo
+                    self.session.addInput(input)
+                    self.session.addOutput(self.photo)
+                    if self.session.canAddOutput(self.metadata) {
+                        self.session.addOutput(self.metadata)
+                        self.metadata.setMetadataObjectsDelegate(self, queue: self.queue)
+                    }
+                    self.session.commitConfiguration()
+                    self.device = device
+                }
+                self.qrHandler = onQR
+                if !self.session.isRunning { self.session.startRunning() }
+                continuation.resume(returning: self.session.isRunning)
+            }
         }
+    }
+
+    func stop() {
+        queue.async {
+            self.qrHandler = nil
+            self.lastQR = nil
+            _ = self.applyTorch(false)
+            if self.session.isRunning { self.session.stopRunning() }
+        }
+    }
+
+    func enableQR(_ enabled: Bool) {
+        queue.async {
+            self.lastQR = nil
+            guard self.metadata.availableMetadataObjectTypes.contains(.qr) else { return }
+            self.metadata.metadataObjectTypes = enabled ? [.qr] : []
+        }
+    }
+
+    func capture(completion: @escaping (Data?) -> Void) {
+        queue.async {
+            guard self.photoHandler == nil else { return }
+            guard self.session.isRunning else { DispatchQueue.main.async { completion(nil) }; return }
+            self.photoHandler = completion
+            if let connection = self.photo.connection(with: .video) {
+                if #available(iOS 17.0, *), connection.isVideoRotationAngleSupported(90) {
+                    connection.videoRotationAngle = 90
+                }
+            }
+            self.photo.capturePhoto(with: AVCapturePhotoSettings(), delegate: self)
+        }
+    }
+
+    func setTorch(_ enabled: Bool, completion: @escaping (Bool) -> Void) {
+        queue.async {
+            let applied = self.applyTorch(enabled)
+            DispatchQueue.main.async { completion(applied) }
+        }
+    }
+
+    private func applyTorch(_ enabled: Bool) -> Bool {
+        guard let device, device.hasTorch, device.isTorchAvailable else { return false }
+        do {
+            try device.lockForConfiguration()
+            defer { device.unlockForConfiguration() }
+            device.torchMode = enabled ? .on : .off
+            return true
+        } catch { return false }
+    }
+
+    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
+        let data = error == nil ? photo.fileDataRepresentation() : nil
+        queue.async {
+            let completion = self.photoHandler
+            self.photoHandler = nil
+            DispatchQueue.main.async { completion?(data) }
+        }
+    }
+
+    func metadataOutput(_ output: AVCaptureMetadataOutput, didOutput objects: [AVMetadataObject], from connection: AVCaptureConnection) {
+        guard let payload = (objects.first as? AVMetadataMachineReadableCodeObject)?.stringValue,
+              payload != lastQR else { return }
+        lastQR = payload
+        let callback = qrHandler
+        DispatchQueue.main.async { callback?(payload) }
     }
 }
 
@@ -633,6 +1011,8 @@ private struct CropEditor: View {
                             .frame(width: 16, height: 16)
                             .frame(width: 44, height: 44)
                             .contentShape(Rectangle())
+                            .accessibilityLabel("角点 \(index + 1)")
+                            .accessibilityIdentifier("crop-corner-\(index)")
                             .position(point(boundary.corners[index], in: size))
                             .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .named("crop-image"))
                                 .onChanged { value in

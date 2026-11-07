@@ -165,7 +165,8 @@ struct ContactFieldsEditor: View {
             }
         }
         .fullScreenCover(isPresented: $showsAlbum) {
-            ScanAlbum { data in
+            ScanAlbum { images in
+                guard let data = images.first else { return }
                 do { manualImage = try ScanProcessor.decode(data) }
                 catch { self.error = "无法读取这张照片。" }
                 showsAlbum = false

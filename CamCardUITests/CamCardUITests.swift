@@ -54,12 +54,12 @@ final class CamCardUITests: XCTestCase {
 
     func testPhotoImportAndManualCrop() {
         let app = XCUIApplication()
-        app.launchArguments = ["--test-library", "--reset-test-library"]
+        app.launchArguments = ["--test-library", "--reset-test-library", "--test-photo-filenames"]
         app.launch()
         app.buttons["open-scanner"].tap()
         app.buttons["scan-photo-picker"].tap()
 
-        let photo = app.buttons.matching(identifier: "album-photo").firstMatch
+        let photo = albumPhoto("CC-001.png", in: app)
         XCTAssertTrue(photo.waitForExistence(timeout: 8), app.debugDescription)
         let done = app.buttons["album-done"]
         XCTAssertFalse(done.isEnabled)
@@ -166,6 +166,122 @@ final class CamCardUITests: XCTestCase {
         app.buttons["删除"].tap()
         app.alerts["提示"].buttons["删除名片"].tap()
         XCTAssertTrue(app.staticTexts["card-count"].label.contains("0张"))
+    }
+
+    func testDifficultFixtureCropAndRecovery() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--empty-library", "--test-photo-filenames", "--test-invalid-image"]
+        app.launch()
+        app.buttons["open-scanner"].tap()
+
+        func choose(_ name: String) {
+            app.buttons["scan-photo-picker"].tap()
+            let photo = albumPhoto(name, in: app)
+            XCTAssertTrue(photo.waitForExistence(timeout: 8), app.debugDescription)
+            photo.tap()
+            app.buttons["album-done"].tap()
+        }
+
+        choose("CC-016.png")
+        let error = app.alerts.staticTexts["无法读取这张图片，请重新选择。"]
+        XCTAssertTrue(error.waitForExistence(timeout: 10), app.debugDescription)
+        app.alerts.buttons["好"].tap()
+        XCTAssertFalse(app.staticTexts["scan-result"].exists)
+
+        for fixture in ["CC-016.png", "CC-017.png"] {
+            choose(fixture)
+            XCTAssertTrue(app.staticTexts["scan-result"].waitForExistence(timeout: 25), fixture)
+            app.buttons["scan-crop"].tap()
+            let corner = app.descendants(matching: .any)["crop-corner-0"]
+            XCTAssertTrue(corner.waitForExistence(timeout: 5), app.debugDescription)
+            let before = corner.frame
+            let start = corner.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+            start.press(forDuration: 0.1, thenDragTo: start.withOffset(CGVector(dx: 14, dy: 12)))
+            XCTAssertGreaterThan(corner.frame.midX, before.midX + 5, fixture)
+            attachScreenshot(app, named: "\(fixture) 调整角点")
+            app.buttons["crop-done"].tap()
+            let save = app.buttons["scan-save"]
+            let ready = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND enabled == true"), object: save)
+            XCTAssertEqual(XCTWaiter.wait(for: [ready], timeout: 25), .completed, fixture)
+            XCTAssertFalse(app.alerts.firstMatch.exists, fixture)
+            app.buttons["重新拍摄"].tap()
+        }
+        choose("CC-030.png")
+        XCTAssertTrue(app.staticTexts["未识别到文字。可调整裁剪或手动填写。"].waitForExistence(timeout: 25))
+        XCTAssertTrue(app.buttons["scan-crop"].exists)
+        app.buttons["重新拍摄"].tap()
+        app.buttons["close-scanner"].tap()
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("0张"))
+    }
+
+    func testDetailOpensContactURLs() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--demo-cards", "--test-open-urls"]
+        app.launch()
+        app.buttons["card-00000000-0000-0000-0000-000000000001"].tap()
+
+        attachScreenshot(app, named: "名片详情")
+        let opened = app.staticTexts["test-opened-url"]
+        func check(_ value: String) {
+            let expected = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND label == %@", value), object: opened)
+            XCTAssertEqual(XCTWaiter.wait(for: [expected], timeout: 5), .completed)
+        }
+        app.buttons["detail-call"].tap()
+        check("tel:+12025550101")
+        app.descendants(matching: .any)["email-0"].tap()
+        check("mailto:mara@example.com")
+        let website = app.buttons["detail-website"]
+        if !website.isHittable { app.swipeUp() }
+        website.tap()
+        check("https://northglass.example")
+    }
+
+    func testCaptureModesAndContinuousAlbum() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--empty-library", "--test-photo-filenames"]
+        app.launch()
+        app.buttons["open-scanner"].tap()
+        XCTAssertTrue(app.buttons["scan-mode-单张拍摄"].isSelected)
+        let continuous = app.buttons["scan-mode-连续拍摄"]
+        XCTAssertTrue(continuous.isHittable)
+        XCTAssertGreaterThan(continuous.frame.minX, 0)
+        XCTAssertTrue(app.staticTexts["请将镜头靠近名片"].exists)
+        // Capture the settled full-screen presentation rather than the cover transition.
+        RunLoop.current.run(until: Date().addingTimeInterval(0.65))
+        attachScreenshot(app, named: "单张拍摄取景")
+        app.buttons["scan-mode-二维码"].tap()
+        let qrHint = app.staticTexts["扫描 CC 名片二维码，面对面交换名片"]
+        XCTAssertTrue(qrHint.exists)
+        let torch = app.buttons["轻触照亮"]
+        XCTAssertTrue(torch.exists)
+        XCTAssertFalse(torch.frame.intersects(qrHint.frame))
+        XCTAssertFalse(app.buttons["scan-shutter"].isEnabled)
+        attachScreenshot(app, named: "二维码取景")
+        app.buttons["scan-mode-多张拍摄"].tap()
+        let guide = app.buttons["我知道了"]
+        if guide.waitForExistence(timeout: 2) { guide.tap() }
+        XCTAssertTrue(app.staticTexts["正在寻找名片边框"].exists)
+        attachScreenshot(app, named: "多张拍摄取景")
+        app.buttons["scan-mode-连续拍摄"].tap()
+        XCTAssertTrue(app.buttons["scan-mode-连续拍摄"].isSelected)
+        app.buttons["scan-photo-picker"].tap()
+        for name in ["CC-001.png", "CC-017.png"] {
+            let photo = albumPhoto(name, in: app)
+            XCTAssertTrue(photo.waitForExistence(timeout: 8))
+            photo.tap()
+        }
+        let done = app.buttons["album-done"]
+        XCTAssertEqual(done.label, "2 完成")
+        done.tap()
+        let save = app.buttons["scan-save"]
+        XCTAssertTrue(save.waitForExistence(timeout: 25))
+        save.tap()
+        let next = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == true AND enabled == true"), object: save)
+        XCTAssertEqual(XCTWaiter.wait(for: [next], timeout: 25), .completed)
+        save.tap()
+        XCTAssertTrue(app.staticTexts["名片详情"].waitForExistence(timeout: 8))
+        app.buttons["detail-back"].tap()
+        XCTAssertTrue(app.staticTexts["card-count"].label.contains("2张"))
     }
 
     func testLibrarySearchAndGroupCreation() {
@@ -347,6 +463,46 @@ final class CamCardUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["已导出 VCF"].waitForExistence(timeout: 8), app.debugDescription)
         XCTAssertTrue(app.buttons["分享 VCF"].exists)
         attachScreenshot(app, named: "VCF 导出确认")
+    }
+
+    func testVisitEditorAndSavedLog() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--demo-cards"]
+        app.launch()
+        app.buttons["card-00000000-0000-0000-0000-000000000001"].tap()
+        app.buttons["detail-notes"].tap()
+        app.buttons["新增备注"].tap()
+        attachScreenshot(app, named: "备注类型")
+        app.buttons["拜访日志"].tap()
+
+        let followUp = app.buttons["visit-follow-up"]
+        XCTAssertTrue(followUp.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["Mara Quill"].exists)
+        XCTAssertFalse(app.buttons["保存"].isEnabled)
+        XCTAssertTrue(app.buttons["上门拜访"].isSelected)
+        app.buttons["电话拜访"].tap()
+        XCTAssertTrue(app.buttons["电话拜访"].isSelected)
+        attachScreenshot(app, named: "拜访日志")
+        followUp.tap()
+        let confirm = app.buttons["visit-time-confirm"]
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        attachScreenshot(app, named: "回访时间滚轮")
+        confirm.tap()
+        app.buttons["清除回访提醒"].tap()
+
+        let content = app.descendants(matching: .any)["visit-content"]
+        content.tap()
+        content.typeText("Discussed project")
+        app.buttons["保存"].tap()
+        XCTAssertTrue(app.staticTexts["Discussed project"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["拜访日志"].exists)
+        app.buttons["notes-back"].tap()
+        XCTAssertTrue(app.buttons["detail-notes"].label.contains("Discussed project"))
+    }
+
+    private func albumPhoto(_ filename: String, in app: XCUIApplication) -> XCUIElement {
+        app.buttons.matching(identifier: "album-photo")
+            .matching(NSPredicate(format: "value =[c] %@", filename)).firstMatch
     }
 
     private func attachScreenshot(_ app: XCUIApplication, named name: String) {
